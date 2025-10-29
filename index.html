@@ -1076,6 +1076,7 @@ document.addEventListener("DOMContentLoaded", () => {
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
 
 <script>
+ // 🔹 Configuração do seu projeto Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyCPA79g3ucoytsNGWoJXXbnrXva40HieAQ",
     authDomain: "sistema-de-estoque-da603.firebaseapp.com",
@@ -1087,9 +1088,12 @@ document.addEventListener("DOMContentLoaded", () => {
     measurementId: "G-8R7RY041J9"
   };
 
+  // 🔹 Inicializa o Firebase
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
+  const db = firebase.firestore();
 
+  // === FUNÇÃO DE LOGIN ===
   async function fazerLogin() {
     const nome = document.getElementById("usuarioLogin")?.value.trim();
     const senha = document.getElementById("senhaLogin")?.value.trim();
@@ -1125,7 +1129,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Permite pressionar ENTER para logar
+  // === PERMITIR LOGIN COM ENTER ===
   document.addEventListener("keydown", function (event) {
     const loginView = document.getElementById("loginView");
     if (loginView && loginView.style.display !== "none" && event.key === "Enter") {
@@ -1134,6 +1138,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // 🔹 Torna a função global (acessível pelo botão)
   window.fazerLogin = fazerLogin;
 </script>
 
