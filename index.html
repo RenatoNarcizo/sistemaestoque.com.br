@@ -8,33 +8,7 @@
   <!-- Font Awesome (ícones modernos) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 <!-- Firebase SDKs -->
-<script type="module">
-  // Importa as funções necessárias
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-  import { getFirestore, collection, addDoc, getDocs, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
-  // 🔹 Suas configurações do Firebase
-  const firebaseConfig = {
-    apiKey: "AIzaSyCPA79g3ucoytsNGWoJXXbnrXva40HieAQ",
-    authDomain: "sistema-de-estoque-da603.firebaseapp.com",
-    databaseURL: "https://sistema-de-estoque-da603-default-rtdb.firebaseio.com",
-    projectId: "sistema-de-estoque-da603",
-    storageBucket: "sistema-de-estoque-da603.firebasestorage.app",
-    messagingSenderId: "873551516123",
-    appId: "1:873551516123:web:f7ce215d844e6586e3d7fe",
-    measurementId: "G-8R7RY041J9"
-  };
-
-  // 🔹 Inicializa o Firebase
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-
-  // 🔹 Exporta para ser usado no restante do sistema
-  window.auth = auth;
-  window.db = db;
-</script>
 
   <style>
     :root {
@@ -1069,7 +1043,7 @@ function logout() {
 document.addEventListener("DOMContentLoaded", () => {
   verificarSessao();
 });
-
+<script>
 <!-- 🔹 Firebase compatível com GitHub Pages -->
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
@@ -3247,3 +3221,4 @@ function sincronizarNomeProdutoAntigo(novoNome, nomeAntigo) {
 
 </body>
 </html>
+
