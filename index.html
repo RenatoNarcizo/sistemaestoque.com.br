@@ -1,0 +1,3216 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema de Controle de Estoque – Oral Unic Campo Grande</title>
+
+  <!-- Font Awesome (ícones modernos) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    :root {
+      --azul: #0d6efd;
+      --azul-escuro: #003b88;
+      --cinza-fundo: #f4f6f9;
+      --branco: #ffffff;
+      --cinza: #e0e0e0;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--cinza-fundo);
+      color: #222;
+    }
+
+    /* ========================= HEADER ========================= */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--azul);
+      color: var(--branco);
+      padding: 12px 20px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 900;
+    }
+
+    header h1 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    header button {
+      background: none;
+      border: none;
+      color: var(--branco);
+      cursor: pointer;
+      font-size: 1.3rem;
+    }
+
+    header button:hover {
+      color: #e2e2e2;
+    }
+
+   /* ========================= MENU LATERAL ========================= */
+ #sidebar {
+  position: fixed;
+  top: 0;
+  left: -260px; /* escondido 10px a mais */
+  width: 250px;
+  height: 100%;
+  background: var(--azul-escuro);
+  color: var(--branco);
+  overflow-y: auto;
+  transition: left 0.3s ease;
+  z-index: 800;
+  padding-top: 60px;
+  border-right: none;
+  box-shadow: none;
+}
+
+/* Quando ativo (aberto) */
+#sidebar.active {
+  left: 0;
+}
+
+
+    #sidebar.active {
+      left: 0;
+    }
+
+    #sidebar button {
+      display: block;
+      width: 100%;
+      border: none;
+      background: none;
+      color: var(--branco);
+      text-align: left;
+      padding: 14px 18px;
+      font-size: 15px;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      transition: background 0.2s;
+    }
+
+    #sidebar button i {
+      margin-right: 8px;
+      width: 18px;
+      text-align: center;
+    }
+
+    #sidebar button:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* ========================= ÁREA PRINCIPAL ========================= */
+   main {
+  margin: 20px;
+  padding-left: 0;
+  transition: margin-left 0.3s ease;
+  overflow-x: hidden; /* impede overflow lateral */
+}
+
+
+    @media (min-width: 900px) {
+      #sidebar.active + main {
+        margin-left: 250px;
+      }
+    }
+
+    /* ========================= TABELAS ========================= */
+.table-wrap {
+  max-height: 60vh;          /* altura máxima visível */
+  overflow-y: auto;          /* rolagem vertical */
+  overflow-x: auto;          /* rolagem horizontal se necessário */
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  scrollbar-width: thin;     /* Firefox */
+  scrollbar-color: #888 #f0f0f0;
+}
+
+/* 🔹 Mantém o cabeçalho fixo dentro da área rolável */
+.table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px; /* evita desalinhamento */
+}
+
+.table-wrap table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--azul);
+  color: #fff;
+  z-index: 10;
+  text-align: left;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+}
+
+.table-wrap table td {
+  border: 1px solid #ddd;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+.table-wrap table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* 🔹 Scrollbar estilizada */
+.table-wrap::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.table-wrap::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 8px;
+}
+.table-wrap::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 8px;
+}
+.table-wrap::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+
+    /* ========================= BOTÕES ========================= */
+    button {
+      background: var(--azul);
+      color: var(--branco);
+      border: none;
+      padding: 7px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-size: 14px;
+    }
+
+    button:hover {
+      background: var(--azul-escuro);
+    }
+
+    /* ========================= INPUTS E SELECTS ========================= */
+    input, select {
+      padding: 6px 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      margin: 3px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--azul);
+    }
+
+    /* ========================= IMAGENS ========================= */
+    .thumb {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .thumb:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+    }
+
+    #imagemAmpliada {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+
+    #imagemAmpliada img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    /* ========================= LOGIN ========================= */
+    .login-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(135deg, var(--azul), var(--azul-escuro));
+    }
+
+    .login-card {
+      background: var(--branco);
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      text-align: center;
+      width: 320px;
+    }
+
+    .login-card h2 {
+      color: var(--azul-escuro);
+      margin-bottom: 20px;
+    }
+
+    .login-card input {
+      width: 100%;
+      margin: 6px 0;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .login-card button {
+      width: 100%;
+      margin-top: 10px;
+    }
+/* 🔹 Centralização estável da tela de login */
+#loginView {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, var(--azul), var(--azul-escuro));
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  z-index: 1000;
+}
+
+/* Evita o scroll automático ao alternar login/sistema */
+html, body {
+  height: 100%;
+  overflow-y: auto; /* ativa rolagem vertical */
+  overflow-x: hidden; /* evita rolagem lateral */
+}
+#loginMsg {
+  background: #f8d7da;
+  border-radius: 5px;
+  padding: 8px;
+  font-weight: bold;
+}
+#loginMsg[style*="green"] {
+  background: #d4edda;
+}
+
+    /* ========================= SEÇÕES ========================= */
+    section {
+      display: none;
+    }
+
+    section h2 {
+      color: var(--azul-escuro);
+      border-left: 5px solid var(--azul);
+      padding-left: 10px;
+    }
+
+    .section.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+	/* ========================= ROLAGEM POR SEÇÃO ========================= */
+.section {
+  max-height: calc(100vh - 140px); /* altura visível abaixo do cabeçalho */
+  overflow-y: auto; /* ativa rolagem vertical */
+  overflow-x: hidden; /* evita rolagem lateral */
+  padding-bottom: 20px; /* espaçamento inferior */
+  scroll-behavior: smooth; /* rolagem suave */
+}
+/* ========================= DASHBOARD ========================= */
+.dash-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.dash-card {
+  background: var(--branco);
+  border-radius: 10px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  padding: 15px 20px;
+  transition: transform 0.2s ease;
+}
+
+.dash-card:hover {
+  transform: scale(1.02);
+}
+
+.dash-card h3 {
+  color: var(--azul-escuro);
+  margin-bottom: 10px;
+  border-bottom: 2px solid var(--azul);
+  padding-bottom: 5px;
+  font-size: 16px;
+}
+
+.dash-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dash-card ul li {
+  padding: 5px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+
+.dash-card ul li:last-child {
+  border-bottom: none;
+}
+
+
+    /* ========================= RODAPÉ (opcional futuro) ========================= */
+  </style>
+</head>
+<body>
+
+  <!-- IMAGEM AMPLIADA (modal) -->
+  <div id="imagemAmpliada" onclick="this.style.display='none'">
+    <img src="" alt="Imagem ampliada">
+  </div>
+
+  <!-- TELA DE LOGIN -->
+  <div id="loginView" class="login-container">
+    <div class="login-card">
+      <h2><i class="fa fa-boxes-stacked"></i> Sistema de Controle de Estoque</h2>
+      <input id="usuarioLogin" type="text" placeholder="Usuário" />
+      <input id="senhaLogin" type="password" placeholder="Senha" />
+      <button onclick="fazerLogin()"><i class="fa fa-right-to-bracket"></i> Entrar</button>
+	  <p id="loginMsg" style="display:none; color:red; font-weight:bold; text-align:center;"></p>
+      
+      </div>
+    </div>
+  </div>
+
+  <!-- APLICATIVO PRINCIPAL (escondido até login) -->
+  <div id="mainApp" style="display:none;">
+
+    <!-- CABEÇALHO -->
+    <header>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button id="menuToggle" onclick="toggleSidebar()"><i class="fa fa-bars"></i></button>
+        <h1><i class="fa fa-boxes-stacked"></i> Sistema de Controle de Estoque – Oral Unic Campo Grande</h1>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div id="userName" style="font-weight:700">Visitante</div>
+        <div id="perfilBadge" style="background:rgba(255,255,255,0.12);padding:6px 10px;border-radius:8px;font-size:13px;">PERFIL</div>
+        <button onclick="logout()" title="Sair"><i class="fa fa-sign-out-alt"></i></button>
+      </div>
+    </header>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" aria-hidden="true">
+	  <button onclick="showSection('dashboard')"><i class="fa fa-chart-pie"></i> Dashboard</button>
+      <button onclick="showSection('cadastro')"><i class="fa fa-box"></i> Cadastro de Produtos</button>
+      <button onclick="showSection('entrada')"><i class="fa fa-arrow-down"></i> Entrada de Materiais</button>
+      <button onclick="showSection('saida')"><i class="fa fa-arrow-up"></i> Saída de Materiais</button>
+      <button onclick="showSection('estoque')"><i class="fa fa-warehouse"></i> Estoque Atual</button>
+      <button onclick="showSection('limites')"><i class="fa fa-sliders-h"></i> Estoque Mín/Máx</button>
+      <button onclick="showSection('financeiro')"><i class="fa fa-coins"></i> Financeiro</button>
+      <button onclick="showSection('relatorios')"><i class="fa fa-file-excel"></i> Relatórios</button>
+      <button onclick="showSection('usuarios')"><i class="fa fa-users"></i> Usuários e Perfis</button>
+
+    </aside>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main>
+<!-- SEÇÃO: BOAS-VINDAS -->
+<section id="boasVindas" class="section active" style="text-align:center; padding:100px 20px;">
+  <h1 style="color:#003b88;">👋 Bem-vindo(a) <span id="nomeUsuarioBemVindo"></span>!</h1>
+  <h2 style="color:#0d6efd;">ao Sistema de Controle de Estoque – Oral Unic Campo Grande</h2>
+  <p style="margin-top:20px; color:#555;">Use o menu lateral para iniciar suas atividades.</p>
+</section>
+
+      <!-- SEÇÃO: CADASTRO DE PRODUTOS -->
+      <section id="cadastro" class="section">
+        <h2><i class="fa fa-box"></i> Cadastro de Produtos</h2>
+
+        <div class="input-row" style="margin-bottom:10px;gap:8px;">
+          <input id="produtoNome" type="text" placeholder="Nome do produto" class="flex" />
+		  
+          <select id="produtoCategoria">
+  <option value="">Selecione a categoria</option>
+  <option>Material de Uso e Consumo</option>
+  <option>Copa e Cozinha</option>
+  <option>Escritório</option>
+  <option>Implante e Componentes</option>
+  <option>Insumo Dental</option>
+  <option>Insumo Laboratório</option>
+  <option>Medicamentos</option>
+  <option>Material de Limpeza</option>
+</select>
+          <select id="produtoEmbalagem">
+  <option value="">Selecione o tipo de embalagem</option>
+  <option>Ampola</option>
+  <option>Caixa</option>
+  <option>Fardo</option>
+  <option>Frasco</option>
+  <option>Garrafa</option>
+  <option>Gramas</option>
+  <option>Litro</option>
+  <option>Pacote</option>
+  <option>Peça</option>
+  <option>Quilogramas (KG)</option>
+  <option>Saco</option>
+  <option>Unidade</option>
+</select>
+          <input id="produtoQtdEmbalagem" type="number" placeholder="Qtd por embalagem" style="width:140px" />
+		  <input id="produtoCodigoBarras" type="text" placeholder="📷Código de Barras (opcional)" style="width:220px" />
+
+          <input id="produtoFoto" type="file" accept="image/*" />
+          <button onclick="cadastrarProduto()"><i class="fa fa-save"></i> Cadastrar</button>
+        </div>
+
+        <div style="margin-bottom:10px;">
+          <input id="filtroProduto" type="text" placeholder="🔍 Filtrar por nome ou categoria" style="width:98%" oninput="filtrarProdutos()" />
+        </div>
+
+        <div class="table-wrap">
+          <table id="tabelaProdutos">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Foto</th>
+                <th>Nome</th>
+                <th>Categoria</th>
+                <th>Embalagem</th>
+                <th>Qtd/Emb.</th>
+				 <th>Cód. Barras</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+     <!-- SEÇÃO: ENTRADA DE MATERIAIS -->
+<!-- SEÇÃO: ENTRADA DE MATERIAIS -->
+<section id="entrada" class="section" style="display:none;">
+
+  <h2><i class="fa fa-arrow-down"></i> Entrada de Materiais</h2>
+   <div class="input-row" style="margin-bottom:10px;gap:8px;">
+<input id="entradaCodigoBarras" type="text" placeholder="📷 Ler código de barras" 
+       style="min-width:200px;" oninput="buscarProdutoPorCodigo('entrada')" />
+  <div class="input-row" style="margin-bottom:10px;gap:8px;">
+    <input id="entradaProduto" type="text" placeholder="Nome do produto" style="min-width:220px" />
+    <input id="entradaQuantidade" type="number" placeholder="Quantidade" style="width:120px" />
+    <input id="entradaValor" type="number" placeholder="Valor Unitário (R$)" step="0.01" style="width:150px" />
+    <input id="entradaData" type="date" style="width:160px" />
+    <input id="entradaNota" type="text" placeholder="Nota Fiscal" />
+    <input id="entradaFornecedor" type="text" placeholder="Fornecedor" />
+    <input id="entradaCNPJ" type="text" placeholder="CNPJ" />
+    <input id="entradaLote" type="text" placeholder="Lote" />
+    <input id="entradaValidade" type="date" placeholder="Validade" />
+    
+    <select id="entradaSetor">
+      <option value="">Selecione o Setor Utilizado</option>
+      <option>Limpeza da Clínica</option>
+      <option>Laboratório</option>
+      <option>Escritório</option>
+      <option>Copa e Cozinha</option>
+      <option>Clínico Geral</option>
+      <option>Centro Cirúrgico</option>
+    </select>
+
+    <button onclick="registrarEntrada()"><i class="fa fa-save"></i> Registrar Entrada</button>
+  </div>
+
+  <div style="margin-bottom:10px;">
+    <input id="filtroEntrada" type="text" placeholder="🔍 Buscar por produto, fornecedor ou NF" style="width:98%" oninput="filtrarEntradas()" />
+  </div>
+
+  <div class="table-wrap">
+  <table id="tabelaEntradas">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Produto</th>
+        <th>Código de Barras</th>
+        <th>Qtd</th>
+        <th>Valor (R$)</th>
+        <th>Data</th>
+        <th>NF</th>
+        <th>Fornecedor</th>
+        <th>CNPJ</th>
+        <th>Lote</th>
+        <th>Validade</th>
+        <th>Setor</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+</section>
+
+
+
+ <!-- SEÇÃO: SAÍDA DE MATERIAIS -->
+<section id="saida" class="section" style="display:none;">
+  <h2><i class="fa fa-arrow-up"></i> Saída de Materiais</h2>
+
+  <div class="input-row" style="margin-bottom:10px;gap:8px;">
+  <input id="saidaCodigoBarras" type="text" placeholder="📷 Ler código de barras" oninput="atualizarSetorAutomatico()" />
+
+           
+    <input id="saidaProduto" type="text" placeholder="Nome do produto" style="min-width:220px" oninput="atualizarSetorAutomatico()" />
+    <input id="saidaQuantidade" type="number" placeholder="Quantidade" style="width:120px" />
+    <input id="saidaResponsavel" type="text" placeholder="Responsável" />
+    <input id="saidaObservacao" type="text" placeholder="Observação (opcional)" />
+    <select id="saidaSetor">
+      <option value="">Selecione o Setor</option>
+    </select>
+    <input id="saidaData" type="date" style="width:160px" />
+    <button onclick="registrarSaida()"><i class="fa fa-save"></i> Registrar Saída</button>
+  </div>
+
+  <div style="margin-bottom:10px;">
+    <input id="filtroSaida" type="text" placeholder="🔍 Buscar por produto, setor ou responsável" style="width:98%" oninput="filtrarSaidas()" />
+  </div>
+
+  <div class="table-wrap">
+    <table id="tabelaSaidas">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Produto</th>
+		   <th>Código de Barras</th>
+          <th>Qtd</th>
+          <th>Data</th>
+          <th>Setor</th>
+          <th>Responsável</th>
+          <th>Observação</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+
+
+      <!-- SEÇÃO: ESTOQUE ATUAL -->
+      <section id="estoque" class="section" style="display:none;">
+        <h2><i class="fa fa-warehouse"></i> Estoque Atual</h2>
+
+        <div style="margin-bottom:10px;">
+          <input id="filtroEstoque" type="text" placeholder="🔍 Buscar no estoque (produto, categoria)" style="width:98%" oninput="filtrarEstoque()" />
+        </div>
+
+        <div class="table-wrap">
+        <table id="tabelaEstoque">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Produto</th>
+      <th>Código de Barras</th>
+      <th>Categoria</th>
+      <th>Quantidade</th>
+      <th>Lote</th>
+      <th>Validade</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+        </div>
+      </section>
+
+<!-- FIM DO BLOCO 2/5 -->
+<!-- 📦 SEÇÃO: ESTOQUE MÍNIMO E MÁXIMO -->
+<section id="limites" class="section" style="display:none;">
+  <h2><i class="fa fa-boxes"></i> Estoque Mínimo e Máximo</h2>
+
+  <!-- 🔹 Resumo de contagem -->
+  <div id="resumoEstoque" style="margin-bottom:10px; font-weight:bold; color:#333;">
+    🧾 Total de Produtos: 0 |
+    ⚠️ Abaixo do Mínimo: 0 |
+    ✅ Dentro do Limite: 0 |
+    📦 Acima do Máximo: 0
+  </div>
+
+  <!-- 🔍 Filtros -->
+  <div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:15px;">
+    <input
+      id="filtroLimite"
+      type="text"
+      placeholder="🔍 Buscar por produto"
+      style="flex:1; min-width:220px"
+      oninput="atualizarTabelaLimites()"
+    />
+
+    <select id="filtroCategoria" onchange="atualizarTabelaLimites()" style="min-width:220px;">
+      <option value="">Todas as Categorias</option>
+      <option>Material de Uso e Consumo</option>
+      <option>Copa e Cozinha</option>
+      <option>Escritório</option>
+      <option>Implante e Componentes</option>
+      <option>Insumo Dental</option>
+      <option>Insumo Laboratório</option>
+      <option>Medicamentos</option>
+      <option>Material de Limpeza</option>
+    </select>
+
+    <button onclick="gerarListaCompra()"><i class="fa fa-list"></i> Gerar Lista de Compra</button>
+    <button onclick="limparListaCompra()"><i class="fa fa-trash"></i> Limpar Lista</button>
+  </div>
+
+  <!-- 📋 Tabela principal -->
+  <div class="table-wrap">
+  <table id="tabelaLimites">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Produto</th>
+      <th>Código de Barras</th>
+      <th>Categoria</th>
+      <th>Qtd Atual</th>
+      <th>Mínimo</th>
+      <th>Máximo</th>
+      <th>Status</th>
+      <th>Recomendação</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+
+  </div>
+
+  
+  <!-- 🛒 Lista de compra -->
+<div id="listaCompraContainer" style="display:none; margin-top:20px;">
+  <h3><i class="fa fa-shopping-cart"></i> Lista de Compra Gerada</h3>
+
+ <div class="table-wrap" style="max-height:400px; overflow-y:auto; overflow-x:auto; border:1px solid #ccc;">
+    <table id="tabelaListaCompra" class="tabela-padrao">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Produto</th>
+          <th>Código de Barras</th>
+          <th>Categoria</th>
+          <th>Qtd Atual</th>
+          <th>Mínimo</th>
+          <th>Recomendado Comprar</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+      <tfoot>
+        <tr>
+          <td colspan="6" style="text-align:right; font-weight:bold;">Total de Itens:</td>
+          <td id="totalItensCompra" style="font-weight:bold;">0</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- 🔹 Ações de exportação -->
+  <div style="margin-top:10px;">
+    <button onclick="exportarListaExcel()">
+      <i class="fa fa-file-excel"></i> Exportar para Excel
+    </button>
+    <button onclick="gerarPedidoPDF()">
+      <i class="fa fa-file-pdf"></i> Gerar Pedido de Orçamento (PDF)
+    </button>
+  </div>
+</div>
+
+</section>
+
+
+
+
+
+
+
+      <!-- SEÇÃO: FINANCEIRO -->
+     
+<!-- SEÇÃO: PAINEL FINANCEIRO -->
+<!-- SEÇÃO: PAINEL FINANCEIRO -->
+<section id="financeiro" class="section" style="display:none;">
+  <h2><i class="fa fa-chart-line"></i> Painel Financeiro</h2>
+
+  <!-- 🔸 Indicadores financeiros detalhados -->
+  <div style="display:flex; flex-wrap:wrap; gap:15px; margin-bottom:20px;">
+
+    <!-- Último valor de entrada -->
+    <div style="flex:1; min-width:250px; background:#f8f9fa; border-radius:8px; padding:15px; text-align:center; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+      <h3>💰 Último Valor de Entrada</h3>
+      <p id="valorUltimaEntrada" style="font-size:1.4em; font-weight:bold; color:#007bff;">R$ 0,00</p>
+    </div>
+
+    <!-- Custo médio ponderado -->
+    <div style="flex:1; min-width:250px; background:#f8f9fa; border-radius:8px; padding:15px; text-align:center; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+      <h3>📊 Custo Médio Ponderado</h3>
+      <p id="valorCustoMedio" style="font-size:1.4em; font-weight:bold; color:#6f42c1;">R$ 0,00</p>
+    </div>
+
+    <!-- Valor total do estoque atual -->
+    <div style="flex:1; min-width:250px; background:#f8f9fa; border-radius:8px; padding:15px; text-align:center; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+      <h3>📦 Valor Total do Estoque Atual</h3>
+      <p id="valorEstoqueAtualPainel" style="font-size:1.4em; font-weight:bold; color:#28a745;">R$ 0,00</p>
+    </div>
+  </div>
+
+  <!-- 🔸 Indicadores principais existentes -->
+  <div style="display:flex; flex-wrap:wrap; gap:15px; margin-bottom:20px;">
+    <div style="flex:1; min-width:250px; background:#f8f9fa; border-radius:8px; padding:15px; text-align:center; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+      <h3>💰 Valor Total do Estoque Atual (Contábil)</h3>
+      <p id="valorEstoque" style="font-size:1.4em; font-weight:bold; color:#28a745;">R$ 0,00</p>
+    </div>
+
+    <div style="flex:1; min-width:250px; background:#f8f9fa; border-radius:8px; padding:15px; text-align:center; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+      <h3>💸 Valor Total das Saídas (Estimado)</h3>
+      <p id="valorSaidas" style="font-size:1.4em; font-weight:bold; color:#dc3545;">R$ 0,00</p>
+    </div>
+  </div>
+
+  <!-- 🔸 Entradas agrupadas -->
+  <h3 style="margin-top:25px;"><i class="fa fa-file-invoice"></i> Entradas Agrupadas por Nota Fiscal</h3>
+  <div class="table-wrap">
+    <table id="tabelaFinanceiro">
+      <thead>
+        <tr>
+          <th>Fornecedor</th>
+          <th>Nota Fiscal</th>
+          <th>Valor Total da Nota (R$)</th>
+          <th>Saldo da Nota (R$)</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+
+
+
+      <!-- SEÇÃO: RELATÓRIOS -->
+    <!-- SEÇÃO: RELATÓRIOS -->
+<section id="relatorios" class="section" style="display:none;">
+  <h2><i class="fa fa-chart-line"></i> Relatórios</h2>
+
+  <!-- 🔹 Botões principais -->
+  <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
+    <button onclick="gerarRelatorioProdutos()"><i class="fa fa-file-excel"></i> Produtos</button>
+    <button onclick="gerarRelatorioEntradas()"><i class="fa fa-file-excel"></i> Entradas</button>
+    <button onclick="gerarRelatorioSaidas()"><i class="fa fa-file-excel"></i> Saídas</button>
+    <button onclick="gerarRelatorioEstoque()"><i class="fa fa-file-excel"></i> Estoque</button>
+  </div>
+
+  <!-- 🔹 Filtro de período -->
+  <div id="filtroPeriodo" style="margin: 15px 0; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+    <label><b>Data Início:</b></label>
+    <input type="date" id="dataInicioRelatorio" style="padding: 4px 6px;">
+
+    <label><b>Data Fim:</b></label>
+    <input type="date" id="dataFimRelatorio" style="padding: 4px 6px;">
+
+    <button onclick="gerarRelatorio()" style="background:#2b6cb0;color:#fff;padding:4px 8px;border:none;border-radius:4px;">
+      <i class="fa fa-filter"></i> Filtrar
+    </button>
+
+    <button onclick="definirPeriodoRapido('hoje')">Hoje</button>
+    <button onclick="definirPeriodoRapido('7dias')">Últimos 7 dias</button>
+    <button onclick="definirPeriodoRapido('30dias')">Últimos 30 dias</button>
+    <button onclick="definirPeriodoRapido('mes')">Mês Atual</button>
+    <button onclick="limparPeriodo()">Limpar</button>
+  </div>
+
+  <!-- 🔹 Informativo -->
+  <div style="background:#fff;padding:10px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.1);">
+    <p>Os relatórios são gerados em formato Excel (.csv) e incluem todos os dados das tabelas correspondentes.</p>
+  </div>
+</section>
+
+
+      <!-- SEÇÃO: USUÁRIOS E PERFIS -->
+      <section id="usuarios" class="section" style="display:none;">
+        <h2><i class="fa fa-users"></i> Gerenciar Usuários e Perfis</h2>
+
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+          <input id="usuarioNome" type="text" placeholder="Nome" />
+          <input id="usuarioCPF" type="text" placeholder="CPF" />
+          <input id="usuarioEmail" type="email" placeholder="E-mail" />
+          <input id="usuarioSenha" type="password" placeholder="Senha" />
+          <select id="usuarioPerfil">
+            <option value="admin">Administrador</option>
+            <option value="simples1">Simples 01</option>
+            <option value="simples2">Simples 02</option>
+          </select>
+          <button onclick="salvarUsuario()"><i class="fa fa-save"></i> Salvar</button>
+        </div>
+
+        <div class="table-wrap">
+          <table id="tabelaUsuarios">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nome</th>
+                <th>CPF</th>
+                <th>Email</th>
+                <th>Perfil</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+<section id="dashboard" class="section">
+  <h2>📊 Dashboard do Sistema</h2>
+  <div class="dash-container">
+
+    <div class="dash-card">
+      <h3>🕒 Produtos Próximos do Vencimento</h3>
+      <ul id="listaProximosVencer"></ul>
+    </div>
+
+    <div class="dash-card">
+      <h3>💰 Produtos Mais Caros</h3>
+      <ul id="listaMaisCaros"></ul>
+    </div>
+
+    <div class="dash-card">
+      <h3>📦 Produtos Mais Utilizados</h3>
+      <ul id="listaMaisSaidas"></ul>
+    </div>
+
+    <div class="dash-card">
+      <h3>💤 Produtos com Menos Saídas</h3>
+      <ul id="listaMenosSaidas"></ul>
+    </div>
+
+    <div class="dash-card">
+      <h3>⚠️ Estoque Crítico</h3>
+      <ul id="listaEstoqueCritico"></ul>
+    </div>
+
+    <div class="dash-card">
+      <h3>📈 Resumo Geral</h3>
+      <div id="resumoGeral"></div>
+    </div>
+
+  </div>
+  
+  
+</section>
+
+    </main>
+  </div> <!-- fim do mainApp -->
+<!-- ===================== -->
+<!-- ⚙️ SCRIPT PRINCIPAL -->
+<!-- ===================== -->
+<script>
+/* =========================
+   🔹 Alternar menu lateral
+========================= */
+let entradas = JSON.parse(localStorage.getItem("entradas")) || [];
+let produtos = JSON.parse(localStorage.getItem("produtos")) || [];
+let saidas = JSON.parse(localStorage.getItem("saidas")) || [];
+
+function toggleSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  if (sidebar) sidebar.classList.toggle("active");
+}
+
+// Fecha o menu lateral se o usuário clicar fora dele
+document.addEventListener("click", (e) => {
+  const sidebar = document.getElementById("sidebar");
+  const menuBtn = document.getElementById("menuToggle");
+  if (
+    sidebar.classList.contains("active") &&
+    !sidebar.contains(e.target) &&
+    !menuBtn.contains(e.target)
+  ) {
+    sidebar.classList.remove("active");
+  }
+});
+
+
+
+
+
+
+/* =========================
+   🔹 Mostrar seção
+========================= */
+function showSection(id) {
+  // 🔹 Oculta todas as seções
+  document.querySelectorAll(".section").forEach(sec => sec.style.display = "none");
+
+  // 🔹 Mostra apenas a seção selecionada
+  const alvo = document.getElementById(id);
+  if (alvo) alvo.style.display = "block";
+
+  // 🔹 Fecha automaticamente o menu lateral em qualquer tamanho de tela
+  const sidebar = document.getElementById("sidebar");
+  if (sidebar && sidebar.classList.contains("active")) {
+    sidebar.classList.remove("active");
+  }
+
+  // 🔹 Reposiciona o scroll no topo
+  window.scrollTo({ top: 0, behavior: "smooth" });
+
+  // 🔹 Atualiza dados se for painel financeiro
+  if (id === "financeiro" && typeof atualizarPainelFinanceiro === "function") {
+    atualizarPainelFinanceiro();
+  }
+
+  // 🔹 Atualiza dados se for o dashboard
+  if (id === "dashboard" && typeof atualizarDashboard === "function") {
+    atualizarDashboard();
+  }
+}
+
+// 🔹 Mantém a tela centralizada no login
+window.scrollTo(0, 0);
+
+
+/* =========================
+   🔹 Logout
+========================= */
+
+function logout() {
+  // 🔹 Remove sessão salva
+  localStorage.removeItem("usuarioLogado");
+
+  // 🔹 Esconde o app e volta para tela de login
+  document.getElementById("mainApp").style.display = "none";
+  document.getElementById("loginView").style.display = "flex";
+
+  // 🔹 Limpa os campos de login e mensagem
+  const usuarioEl = document.getElementById("usuarioLogin");
+  const senhaEl = document.getElementById("senhaLogin");
+  const msg = document.getElementById("loginMsg");
+
+  if (usuarioEl) usuarioEl.value = "";
+  if (senhaEl) senhaEl.value = "";
+  if (msg) {
+    msg.textContent = "";
+    msg.style.display = "none";
+  }
+
+  // 🔹 Opcional: foco no campo usuário
+  usuarioEl.focus();
+}
+
+/* =========================
+   🔹 Login
+========================= */
+
+/* ================================
+   🔐 LOGIN, VERIFICAÇÃO E LOGOUT
+================================ */
+
+// Executa quando o DOM estiver pronto
+document.addEventListener("DOMContentLoaded", () => {
+  verificarSessao();
+});
+
+// === FUNÇÃO DE LOGIN ===
+function fazerLogin() {
+  const nome = document.getElementById("usuarioLogin")?.value.trim();
+  const senha = document.getElementById("senhaLogin")?.value.trim();
+  let msg = document.getElementById("loginMsg");
+
+  if (!msg) {
+    msg = document.createElement("p");
+    msg.id = "loginMsg";
+    msg.style.cssText = "margin-top:10px; font-weight:bold; text-align:center;";
+    document.getElementById("loginView").appendChild(msg);
+  }
+
+  msg.style.display = "none";
+  msg.textContent = "";
+
+  if (!nome || !senha) {
+    msg.textContent = "⚠️ Preencha usuário e senha.";
+    msg.style.display = "block";
+    msg.style.color = "red";
+    return;
+  }
+
+  const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+  const usuarioEncontrado = usuarios.find(u => u.nome?.toLowerCase() === nome.toLowerCase());
+
+  if (!usuarioEncontrado) {
+    msg.textContent = "❌ Usuário não encontrado!";
+    msg.style.display = "block";
+    msg.style.color = "red";
+    return;
+  }
+
+  if (usuarioEncontrado.senha !== senha) {
+    msg.textContent = "🔒 Senha incorreta! Tente novamente.";
+    msg.style.display = "block";
+    msg.style.color = "red";
+    return;
+  }
+
+  // ✅ Login bem-sucedido
+  msg.textContent = "✅ Login realizado com sucesso!";
+  msg.style.display = "block";
+  msg.style.color = "green";
+
+  const sessao = { ...usuarioEncontrado, logado: true, loginTime: Date.now() };
+  localStorage.setItem("usuarioLogado", JSON.stringify(sessao));
+
+  // 🔹 Exibe o sistema após um pequeno delay
+  setTimeout(() => mostrarSistema(sessao), 600);
+}
+// === PERMITIR LOGIN COM ENTER ===
+document.addEventListener("keydown", function (event) {
+  const loginView = document.getElementById("loginView");
+  const mainApp = document.getElementById("mainApp");
+
+  if (loginView && loginView.style.display !== "none" && event.key === "Enter") {
+    event.preventDefault();
+    const usuario = document.getElementById("usuarioLogin").value.trim();
+    const senha = document.getElementById("senhaLogin").value.trim();
+
+    if (usuario && senha) {
+      fazerLogin();
+    } else {
+      alert("Digite usuário e senha antes de continuar!");
+    }
+  }
+});
+
+
+
+
+// === MOSTRA SISTEMA ===
+function mostrarSistema(sessao) {
+  const loginView = document.getElementById("loginView");
+  const mainApp = document.getElementById("mainApp");
+  const userName = document.getElementById("userName");
+  const perfilBadge = document.getElementById("perfilBadge");
+  const sidebar = document.getElementById("sidebar");
+
+  if (loginView && mainApp) {
+    loginView.style.display = "none";
+    mainApp.style.display = "block";
+  }
+
+  if (userName && sessao?.nome) userName.textContent = sessao.nome;
+  if (perfilBadge && sessao?.perfil)
+    perfilBadge.textContent = "Perfil: " + sessao.perfil.toUpperCase();
+
+  // 🔹 Mostra mensagem de boas-vindas
+  const nomeBemVindo = document.getElementById("nomeUsuarioBemVindo");
+  if (nomeBemVindo) nomeBemVindo.textContent = sessao.nome;
+
+  // 🔹 Oculta todas as outras seções e mostra apenas a de boas-vindas
+  document.querySelectorAll(".section").forEach(sec => sec.style.display = "none");
+  const boasVindas = document.getElementById("boasVindas");
+  if (boasVindas) boasVindas.style.display = "block";
+
+  // 🔹 Garante que o menu lateral esteja fechado
+  if (sidebar && sidebar.classList.contains("active")) {
+    sidebar.classList.remove("active");
+  }
+
+  // 🔹 Atualiza variáveis e permissões
+  window.usuarioLogado = sessao;
+
+  if (typeof aplicarPermissoes === "function") aplicarPermissoes();
+  if (typeof bloquearAcoesSimples2 === "function") bloquearAcoesSimples2();
+}
+
+
+
+// === VERIFICAÇÃO DE SESSÃO (ao carregar) ===
+function verificarSessao() {
+  const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado") || "{}");
+
+  const loginView = document.getElementById("loginView");
+  const mainApp = document.getElementById("mainApp");
+
+  if (!loginView || !mainApp) {
+    console.warn("⚠️ Estrutura de interface ainda não carregada.");
+    return;
+  }
+
+  if (usuarioLogado.logado) {
+    mostrarSistema(usuarioLogado);
+  } else {
+    voltarParaLogin();
+  }
+}
+
+// === FUNÇÃO DE LOGOUT ===
+function sairDoSistema() {
+  localStorage.removeItem("usuarioLogado");
+  alert("Sessão encerrada. Faça login novamente.");
+  voltarParaLogin();
+}
+
+// === VOLTAR PARA LOGIN ===
+function voltarParaLogin() {
+  const loginView = document.getElementById("loginView");
+  const mainApp = document.getElementById("mainApp");
+
+  if (loginView && mainApp) {
+    loginView.style.display = "block";
+    mainApp.style.display = "none";
+  }
+
+  localStorage.removeItem("usuarioLogado");
+}
+
+
+
+
+/* =========================
+   🔹 Permissões
+========================= */
+function aplicarPermissoes() {
+  const perfil = window.usuarioLogado?.perfil;
+  const botoes = document.querySelectorAll("#sidebar button");
+  botoes.forEach((b) => (b.style.display = "block"));
+
+  if (perfil === "simples1") {
+    ocultarBotoes(["financeiro"]);
+  } else if (perfil === "simples2") {
+    ocultarBotoes([
+      "cadastro",
+      "entrada",
+      "saida",
+      "limites",
+      "financeiro",
+      "usuarios",
+    ]);
+  }
+}
+
+function ocultarBotoes(lista) {
+  lista.forEach((id) => {
+    const botao = document.querySelector(`#sidebar button[onclick*="${id}"]`);
+    if (botao) botao.style.display = "none";
+  });
+}
+
+/* =========================
+   🔹 Bloquear ações Simples 02
+========================= */
+function bloquearAcoesSimples2() {
+  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
+  if (!usuario || usuario.perfil !== "simples2") return;
+  document.querySelectorAll("button").forEach((btn) => {
+    const t = btn.textContent.toLowerCase();
+    if (t.includes("salvar") || t.includes("editar") || t.includes("excluir") || t.includes("registrar")) {
+      btn.disabled = true;
+      btn.style.opacity = "0.6";
+      btn.style.cursor = "not-allowed";
+    }
+  });
+}
+
+/* =========================
+   🔹 Cadastro de produtos
+========================= */
+/* =========================
+   🔹 Cadastro de produtos
+========================= */
+function cadastrarProduto() {
+  if (typeof padronizarCamposAntesDeSalvar === "function") padronizarCamposAntesDeSalvar();
+
+  const nomeEl = document.getElementById("produtoNome");
+  const categoriaEl = document.getElementById("produtoCategoria");
+  const embalagemEl = document.getElementById("produtoEmbalagem");
+  const qtdEl = document.getElementById("produtoQtdEmbalagem");
+  const fotoInput = document.getElementById("produtoFoto");
+  const codigoBarrasEl = document.getElementById("produtoCodigoBarras");
+  const codigoBarras = codigoBarrasEl ? codigoBarrasEl.value.trim() : "";
+
+  // 🔹 Remove marcações anteriores
+  [nomeEl, categoriaEl, embalagemEl, qtdEl, fotoInput, codigoBarrasEl].forEach(el => {
+    if (el) el.style.border = "1px solid #ccc";
+  });
+
+  // 🔹 Validações — mantém o que foi digitado
+  if (!nomeEl.value.trim()) {
+    alert("Informe o nome do produto!");
+    nomeEl.style.border = "2px solid red";
+    nomeEl.focus();
+    return false;
+  }
+
+  if (!categoriaEl.value.trim()) {
+    alert("Selecione a categoria do produto!");
+    categoriaEl.style.border = "2px solid red";
+    categoriaEl.focus();
+    return false;
+  }
+
+  if (!embalagemEl.value.trim()) {
+    alert("Selecione o tipo de embalagem!");
+    embalagemEl.style.border = "2px solid red";
+    embalagemEl.focus();
+    return false;
+  }
+
+  if (!qtdEl.value || Number(qtdEl.value) <= 0) {
+    alert("Informe a quantidade por embalagem!");
+    qtdEl.style.border = "2px solid red";
+    qtdEl.focus();
+    return false;
+  }
+
+  if (!fotoInput.files || !fotoInput.files[0]) {
+    alert("É obrigatório inserir uma foto do produto!");
+    fotoInput.style.border = "2px solid red";
+    fotoInput.focus();
+    return false;
+  }
+
+  // 🔹 Verifica se já existe um produto com o mesmo nome
+  const nome = nomeEl.value.trim();
+  const nomeNormalizado = nome.toLowerCase();
+  const produtoDuplicado = produtos.some(
+    (p) => p.nome && p.nome.trim().toLowerCase() === nomeNormalizado
+  );
+
+  if (produtoDuplicado) {
+    alert(`Já existe um produto cadastrado com o nome "${nome}".`);
+    nomeEl.style.border = "2px solid red";
+    nomeEl.focus();
+    return false;
+  }
+
+  // 🔹 Verifica duplicidade de código de barras
+  if (codigoBarras) {
+    const existeCodigo = produtos.some(p => p.codigoBarras === codigoBarras);
+    if (existeCodigo) {
+      alert("Já existe um produto cadastrado com este código de barras!");
+      codigoBarrasEl.style.border = "2px solid red";
+      codigoBarrasEl.focus();
+      return false;
+    }
+  }
+
+  // 🔹 Coleta dados restantes
+  const categoria = categoriaEl.value.trim();
+  const embalagem = embalagemEl.value.trim();
+  const qtdEmbalagem = qtdEl.value;
+
+  // 🔹 Lê a imagem antes de salvar
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const foto = e.target.result;
+
+    produtos.push({
+      nome,
+      categoria,
+      embalagem,
+      qtdEmbalagem,
+      foto,
+      quantidade: 0,
+      codigoBarras: codigoBarras || ""
+    });
+
+    localStorage.setItem("produtos", JSON.stringify(produtos));
+    atualizarTabelaProdutos();
+
+    if (typeof ordenarListasAlfabeticamente === "function") ordenarListasAlfabeticamente();
+
+    alert("Produto cadastrado com sucesso!");
+
+    // ✅ Limpa os campos somente após sucesso
+    [nomeEl, categoriaEl, embalagemEl, qtdEl, fotoInput, codigoBarrasEl].forEach(el => el.value = "");
+  };
+
+  reader.readAsDataURL(fotoInput.files[0]);
+  return true;
+}
+
+
+
+
+
+
+
+function atualizarTabelaProdutos() {
+  const tbody = document.querySelector("#tabelaProdutos tbody");
+  tbody.innerHTML = "";
+  produtos.forEach((p, i) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${i + 1}</td>
+      <td>${p.foto ? `<img src="${p.foto}" class="thumb" onclick="ampliarImagem('${p.foto}')">` : "-"}</td>
+      <td>${p.nome}</td>
+      <td>${p.categoria}</td>
+      <td>${p.embalagem}</td>
+      <td>${p.qtdEmbalagem}</td>
+      <td style="font-size:12px; color:#555;">${p.codigoBarras || "-"}</td>
+      <td>
+        <button onclick="editarProduto(${i})"><i class="fa fa-edit"></i></button>
+        <button onclick="excluirProduto(${i})"><i class="fa fa-trash"></i></button>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+
+function excluirProduto(i) {
+  if (!confirm("Excluir este produto?")) return;
+  produtos.splice(i, 1);
+  localStorage.setItem("produtos", JSON.stringify(produtos));
+  atualizarTabelaProdutos();
+  preencherProdutosSelect();
+}
+
+function ampliarImagem(src) {
+  const modal = document.getElementById("imagemAmpliada");
+  modal.style.display = "flex";
+  modal.querySelector("img").src = src;
+}
+function editarProduto(i) {
+  const p = produtos[i];
+  document.getElementById("produtoNome").value = p.nome;
+  document.getElementById("produtoCategoria").value = p.categoria;
+  document.getElementById("produtoEmbalagem").value = p.embalagem;
+  document.getElementById("produtoQtdEmbalagem").value = p.qtdEmbalagem;
+
+  // Remove o produto da lista temporariamente para regravar
+  produtos.splice(i, 1);
+  localStorage.setItem("produtos", JSON.stringify(produtos));
+  atualizarTabelaProdutos();
+  
+sincronizarNomeProdutoAntigo(novoNome, nomeAntigo);
+  alert("Edite os campos e clique em 'Cadastrar' para salvar as alterações.");
+}
+
+/* =========================
+   🔹 Registrar Entrada (versão corrigida)
+========================= */
+/* =========================
+   🔹 Registrar Entrada (versão final)
+========================= */
+function registrarEntrada() {
+  // 🔹 Carrega arrays globais
+  entradas = JSON.parse(localStorage.getItem("entradas")) || [];
+  produtos = JSON.parse(localStorage.getItem("produtos")) || [];
+
+  // 🔹 Referências dos campos
+  const produtoEl = document.getElementById("entradaProduto");
+  const qtdEl = document.getElementById("entradaQuantidade");
+  const valorEl = document.getElementById("entradaValor");
+  const dataEl = document.getElementById("entradaData");
+  const notaEl = document.getElementById("entradaNota");
+  const fornecedorEl = document.getElementById("entradaFornecedor");
+  const cnpjEl = document.getElementById("entradaCNPJ");
+  const loteEl = document.getElementById("entradaLote");
+  const validadeEl = document.getElementById("entradaValidade");
+  const setorEl = document.getElementById("entradaSetor");
+
+  const campos = [produtoEl, qtdEl, valorEl, dataEl, notaEl, fornecedorEl, cnpjEl, loteEl, validadeEl, setorEl];
+  campos.forEach(el => (el.style.border = "1px solid #ccc"));
+
+  // 🔹 Validação simples
+  if (!produtoEl.value.trim()) return alert("Informe o nome do produto!");
+  if (!qtdEl.value || Number(qtdEl.value) <= 0) return alert("Informe a quantidade!");
+  if (!valorEl.value || Number(valorEl.value) <= 0) return alert("Informe o valor unitário!");
+  if (!dataEl.value) return alert("Selecione a data!");
+  if (!notaEl.value.trim()) return alert("Informe a nota fiscal!");
+  if (!fornecedorEl.value.trim()) return alert("Informe o fornecedor!");
+
+  // 🔹 CNPJ (deve ter 14 dígitos)
+  const cnpj = cnpjEl.value.trim();
+  const apenasNums = cnpj.replace(/\D/g, "");
+  if (apenasNums.length !== 14) {
+    alert("CNPJ deve conter 14 números. Exemplo: 12.345.678/0001-90");
+    cnpjEl.style.border = "2px solid red";
+    return false;
+  }
+
+  if (!loteEl.value.trim()) return alert("Informe o número do lote!");
+  if (!validadeEl.value) return alert("Selecione a validade!");
+  if (!setorEl.value.trim()) return alert("Selecione o setor!");
+
+  // 🔹 Monta o objeto da nova entrada
+  const novaEntrada = {
+    produto: produtoEl.value.trim(),
+    qtd: Number(qtdEl.value),
+    valor: Number(valorEl.value),
+    data: dataEl.value,
+    nota: notaEl.value.trim(),
+    fornecedor: fornecedorEl.value.trim(),
+    cnpj: cnpj,
+    lote: loteEl.value.trim(),
+    validade: validadeEl.value,
+    setor: setorEl.value.trim(),
+  };
+
+  // 🔹 Salva no localStorage
+  entradas.push(novaEntrada);
+  localStorage.setItem("entradas", JSON.stringify(entradas));
+
+  // 🔹 Atualiza produto relacionado
+  const produtoRef = produtos.find(p => p.nome.trim().toLowerCase() === novaEntrada.produto.trim().toLowerCase());
+  if (produtoRef) {
+    produtoRef.lote = novaEntrada.lote;
+    produtoRef.validade = novaEntrada.validade;
+    localStorage.setItem("produtos", JSON.stringify(produtos));
+  }
+
+  // 🔹 Atualiza as tabelas
+  atualizarEstoque(novaEntrada.produto, novaEntrada.qtd);
+  atualizarTabelaEntradas();
+  atualizarTabelaEstoque();
+  if (typeof atualizarTabelaLimites === "function") atualizarTabelaLimites();
+
+  alert("Entrada registrada com sucesso!");
+
+  // 🔹 Limpa todos os campos para novo lançamento
+  campos.forEach(el => {
+    if (el.tagName === "SELECT") el.selectedIndex = 0;
+    else el.value = "";
+  });
+
+  // 🔹 Posiciona o cursor no campo de produto
+  produtoEl.focus();
+
+  return true;
+}
+
+
+
+
+
+
+
+function buscarCodigoBarrasDoProduto(nomeProduto) {
+  if (!Array.isArray(produtos)) return "-";
+  const prod = produtos.find(p => p.nome === nomeProduto);
+  return prod ? prod.codigoBarras : "-";
+}
+
+
+
+
+
+function atualizarTabelaEntradas() {
+  const tbody = document.querySelector("#tabelaEntradas tbody");
+  if (!tbody) return;
+  tbody.innerHTML = "";
+
+  // 🔹 Pega todas as entradas do localStorage
+  const entradas = JSON.parse(localStorage.getItem("entradas")) || [];
+
+  // 🔹 Caso não haja registros
+  if (!entradas || entradas.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="13" style="text-align:center; color:#777;">Nenhuma entrada registrada.</td></tr>`;
+    return;
+  }
+
+  // 🔹 Ordena alfabeticamente pelo nome do produto
+  const entradasOrdenadas = [...entradas].sort((a, b) =>
+    (a.produto || "").localeCompare(b.produto || "", "pt-BR", { sensitivity: "base" })
+  );
+
+  // 🔹 Recria as linhas da tabela
+  entradasOrdenadas.forEach((e, i) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${i + 1}</td>
+      <td>${e.produto || "-"}</td>
+      <td>${buscarCodigoBarrasDoProduto(e.produto) || "-"}</td>
+      <td>${e.qtd || 0}</td>
+      <td>${(e.valor !== undefined && e.valor !== null) ? Number(e.valor).toFixed(2) : "0.00"}</td>
+      <td>${e.data || "-"}</td>
+      <td>${e.nota || "-"}</td>
+      <td>${e.fornecedor || "-"}</td>
+      <td>${e.cnpj || "-"}</td>
+      <td>${e.lote || "-"}</td>
+      <td>${e.validade || "-"}</td>
+      <td>${e.setor || "-"}</td>
+      <td>
+        <button class="btnEditar" onclick="editarEntradaPorNota(${JSON.stringify(e.nota)})">
+          <i class="fa fa-edit"></i>
+        </button>
+        <button class="btnExcluir" onclick="excluirEntradaPorNota(${JSON.stringify(e.nota)})">
+          <i class="fa fa-trash"></i>
+        </button>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+function editarEntrada(i) {
+  const e = entradas[i];
+  if (!e) return;
+
+  document.getElementById("entradaProduto").value = e.produto;
+  document.getElementById("entradaQuantidade").value = e.qtd;
+  document.getElementById("entradaValor").value = e.valor;
+  document.getElementById("entradaData").value = e.data;
+  document.getElementById("entradaNota").value = e.nota;
+  document.getElementById("entradaFornecedor").value = e.fornecedor;
+  document.getElementById("entradaCNPJ").value = e.cnpj;
+  document.getElementById("entradaLote").value = e.lote;
+  document.getElementById("entradaValidade").value = e.validade;
+  document.getElementById("entradaSetor").value = e.setor;
+
+  // guarda o índice e a quantidade anterior
+  localStorage.setItem("indiceEntradaEditando", i);
+  localStorage.setItem("entradaQtdAnterior", e.qtd);
+
+  alert("Edite os campos e clique em 'Registrar Entrada' para salvar as alterações.");
+}
+
+
+function excluirEntrada(i) {
+  if (!confirm("Excluir esta entrada?")) return;
+  entradas.splice(i, 1);
+  localStorage.setItem("entradas", JSON.stringify(entradas));
+  atualizarTabelaEntradas();
+}
+// Retorna true se o CNPJ for válido (verificação dos dígitos verificadores)
+function validarCNPJ(cnpj) {
+  if (!cnpj) return false;
+  const apenasNums = cnpj.replace(/\D/g, "");
+  if (apenasNums.length !== 14) return false;
+
+  // Elimina CNPJs repetidos como "00000000000000", "11111111111111", ...
+  if (/^(\d)\1+$/.test(apenasNums)) return false;
+
+  const validarDigito = (base, fatores) => {
+    let soma = 0;
+    for (let i = 0; i < base.length; i++) {
+      soma += parseInt(base.charAt(i), 10) * fatores[i];
+    }
+    const resto = soma % 11;
+    return resto < 2 ? 0 : 11 - resto;
+  };
+
+  const nums = apenasNums.split("").map(n => parseInt(n, 10));
+  // fatores para o primeiro digito verificador
+  const fatores1 = [5,4,3,2,9,8,7,6,5,4,3,2];
+  const dv1 = validarDigito(nums.slice(0,12).join(""), fatores1);
+  if (dv1 !== nums[12]) return false;
+
+  // fatores para o segundo digito verificador
+  const fatores2 = [6,5,4,3,2,9,8,7,6,5,4,3,2];
+  const dv2 = validarDigito(nums.slice(0,13).join(""), fatores2);
+  if (dv2 !== nums[13]) return false;
+
+  return true;
+}
+
+// Formata em xx.xxx.xxx/xxxx-xx conforme digita/cola
+function aplicarMascaraCNPJ(valor) {
+  let v = valor.replace(/\D/g, "").substring(0,14);
+  if (v.length > 12) {
+    return v.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{0,2})/, "$1.$2.$3/$4-$5");
+  } else if (v.length > 8) {
+    return v.replace(/^(\d{2})(\d{3})(\d{3})(\d{0,4})/, "$1.$2.$3/$4");
+  } else if (v.length > 5) {
+    return v.replace(/^(\d{2})(\d{3})(\d{0,3})/, "$1.$2.$3");
+  } else if (v.length > 2) {
+    return v.replace(/^(\d{2})(\d{0,3})/, "$1.$2");
+  }
+  return v;
+}
+
+// Aplica máscara em inputs que tenham "cnpj" no id ou name
+document.addEventListener("input", (e) => {
+  const el = e.target;
+  if (!(el.tagName === "INPUT" && el.type === "text")) return;
+
+  if (/cnpj/i.test((el.id || "") + (el.name || ""))) {
+    const pos = el.selectionStart;
+    const antes = el.value;
+    const form = aplicarMascaraCNPJ(antes);
+    el.value = form;
+
+    // tenta restaurar cursor de forma razoável
+    // calcula diferença de comprimento e ajusta cursor para a direita
+    const diff = form.length - antes.length;
+    const novoPos = Math.max(0, pos + diff);
+    try { el.setSelectionRange(novoPos, novoPos); } catch (err) {}
+  }
+});
+
+// Ao colar, força formatação correta (para casos em que cola com pontos/traços)
+document.addEventListener("paste", (e) => {
+  const el = e.target;
+  if (!(el.tagName === "INPUT" && el.type === "text")) return;
+  if (/cnpj/i.test((el.id || "") + (el.name || ""))) {
+    e.preventDefault();
+    const texto = (e.clipboardData || window.clipboardData).getData('text') || '';
+    el.value = aplicarMascaraCNPJ(texto);
+  }
+});
+
+/* =========================
+   🔹 Busca produto pelo código de barras (Entrada ou Saída)
+========================= */
+function buscarProdutoPorCodigo(contexto) {
+  const campoCodigo = document.getElementById(`${contexto}CodigoBarras`);
+  if (!campoCodigo) return;
+
+  const codigo = campoCodigo.value.trim();
+  if (!codigo) return;
+
+  const produto = produtos.find(p => p.codigoBarras === codigo);
+  if (!produto) {
+    campoCodigo.style.border = "2px solid red";
+    campoCodigo.title = "Código de barras não encontrado.";
+    return;
+  }
+
+  campoCodigo.style.border = "1px solid #ccc";
+  campoCodigo.title = "";
+
+  // Preenche o campo do nome automaticamente
+  const campoProduto = document.getElementById(`${contexto}Produto`);
+  if (campoProduto) campoProduto.value = produto.nome;
+}
+
+
+
+/* =========================
+   🔹 Saídas
+========================= */
+
+
+// Função principal: valida e grava a saída (retorna true em sucesso, false em erro)
+function registrarSaida() {
+  if (typeof padronizarCamposAntesDeSalvar === "function") padronizarCamposAntesDeSalvar();
+
+  const produtoEl = document.getElementById("saidaProduto");
+  const qtdEl = document.getElementById("saidaQuantidade");
+  const responsavelEl = document.getElementById("saidaResponsavel");
+  const observacaoEl = document.getElementById("saidaObservacao");
+  const setorEl = document.getElementById("saidaSetor");
+  const dataEl = document.getElementById("saidaData");
+
+  // Protege caso algum elemento falte no DOM (evita TypeError)
+  const camposParaReset = [produtoEl, qtdEl, responsavelEl, setorEl, dataEl];
+  camposParaReset.forEach(el => { if (el) el.style.border = "1px solid #ccc"; });
+
+  // Validações — mantêm os valores preenchidos em caso de erro
+  if (!produtoEl || !produtoEl.value.trim()) {
+    alert("Informe o nome do produto!");
+    if (produtoEl) { produtoEl.style.border = "2px solid red"; produtoEl.focus(); }
+    return false;
+  }
+
+  if (!qtdEl || !qtdEl.value || Number(qtdEl.value) <= 0) {
+    alert("Informe a quantidade da saída (maior que zero)!");
+    if (qtdEl) { qtdEl.style.border = "2px solid red"; qtdEl.focus(); }
+    return false;
+  }
+
+  if (!setorEl || !setorEl.value.trim()) {
+    alert("Selecione o setor!");
+    if (setorEl) { setorEl.style.border = "2px solid red"; setorEl.focus(); }
+    return false;
+  }
+
+  if (!dataEl || !dataEl.value) {
+    alert("Selecione a data da saída!");
+    if (dataEl) { dataEl.style.border = "2px solid red"; dataEl.focus(); }
+    return false;
+  }
+
+  if (!responsavelEl || !responsavelEl.value.trim()) {
+    alert("Informe o responsável pela saída!");
+    if (responsavelEl) { responsavelEl.style.border = "2px solid red"; responsavelEl.focus(); }
+    return false;
+  }
+
+  // Coleta os valores (observação opcional)
+  const produto = produtoEl.value.trim();
+  const qtd = Number(qtdEl.value);
+  const setor = setorEl.value.trim();
+  const data = dataEl.value;
+  const responsavel = responsavelEl.value.trim();
+  const observacao = observacaoEl ? observacaoEl.value.trim() : "";
+
+  // Verifica existência do produto no cadastro
+  const produtoEstoque = produtos.find(p => (p.nome || "").trim().toLowerCase() === produto.toLowerCase());
+  if (!produtoEstoque) {
+    alert(`Produto "${produto}" não encontrado no cadastro.`);
+    if (produtoEl) { produtoEl.style.border = "2px solid red"; produtoEl.focus(); }
+    return false;
+  }
+
+  // Verifica estoque suficiente
+  const estoqueAtual = Number(produtoEstoque.quantidade || 0);
+  if (estoqueAtual < qtd) {
+    alert(`Estoque insuficiente: há ${estoqueAtual} unidade(s) disponíveis.`);
+    if (qtdEl) { qtdEl.style.border = "2px solid red"; qtdEl.focus(); }
+    return false;
+  }
+
+  // Tudo ok -> registra a saída
+  saidas.push({ produto, qtd, data, setor, responsavel, observacao });
+  localStorage.setItem("saidas", JSON.stringify(saidas));
+
+  // Atualiza estoque (subtrai) e tabelas
+  atualizarEstoque(produto, -qtd);
+  if (typeof atualizarTabelaSaidas === "function") atualizarTabelaSaidas();
+  if (typeof atualizarTabelaLimites === "function") atualizarTabelaLimites();
+
+  alert("Saída registrada com sucesso!");
+  return true;
+}
+
+// Wrapper: chama registrarSaida e limpa os campos somente se retornar true
+const _registrarSaidaOriginal = registrarSaida;
+registrarSaida = function() {
+  try {
+    const result = _registrarSaidaOriginal();
+    if (result === true) {
+      // limpa os campos da seção "saida" após sucesso
+      setTimeout(() => limparCampos("saida"), 300);
+    } else {
+      // mantém os dados e navega até o campo com erro (se houver)
+      const erroEl = document.querySelector("#saida input[style*='red'], #saida select[style*='red']");
+      if (erroEl) erroEl.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  } catch (err) {
+    console.error("Erro ao registrar saída:", err);
+  }
+};
+
+
+function atualizarTabelaSaidas() {
+  const tbody = document.querySelector("#tabelaSaidas tbody");
+  tbody.innerHTML = "";
+  saidas.forEach((s, i) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+  <td>${i + 1}</td>
+  <td>${s.produto || "-"}</td>
+  <td>${buscarCodigoBarrasDoProduto(s.produto) || "-"}</td>
+  <td>${s.qtd || 0}</td>
+  <td>${s.data || "-"}</td>
+  <td>${s.setor || "-"}</td>
+  <td>${s.responsavel || "-"}</td>
+  <td>${s.observacao || "-"}</td>
+  <td>
+    <button onclick="editarSaida(${i})"><i class="fa fa-edit"></i></button>
+    <button onclick="excluirSaida(${i})"><i class="fa fa-trash"></i></button>
+  </td>
+`;
+
+    tbody.appendChild(row);
+  });
+}
+function atualizarSetoresPorProduto() {
+  const produtoNome = document.getElementById("saidaProduto").value.trim();
+  const setorSelect = document.getElementById("saidaSetor");
+
+  // Deixa apenas a opção padrão ao carregar / quando o campo estiver vazio
+  setorSelect.innerHTML = `<option value="">Selecione o Setor</option>`;
+
+  // Se o usuário não digitou nada, manter somente a opção padrão (vazio)
+  if (!produtoNome) return;
+
+  // Se o usuário começou a digitar, preenche com a lista COMPLETA de setores
+  const setoresCompletos = [
+    "Limpeza da Clínica",
+    "Laboratório",
+    "Escritório",
+    "Copa e Cozinha",
+    "Clínico Geral",
+    "Centro Cirúrgico"
+  ];
+
+  setorSelect.innerHTML = setoresCompletos
+    .map(s => `<option value="${s}">${s}</option>`)
+    .join("");
+}
+
+
+
+
+
+
+
+
+function editarSaida(i) {
+  const s = saidas[i];
+  document.getElementById("saidaProduto").value = s.produto;
+  document.getElementById("saidaQuantidade").value = s.qtd;
+  document.getElementById("saidaResponsavel").value = s.responsavel;
+  document.getElementById("saidaObservacao").value = s.observacao;
+  document.getElementById("saidaSetor").value = s.setor;
+  document.getElementById("saidaData").value = s.data;
+
+  saidas.splice(i, 1);
+  localStorage.setItem("saidas", JSON.stringify(saidas));
+  atualizarTabelaSaidas();
+  ordenarListasAlfabeticamente();
+
+  atualizarSetoresPorProduto(); // 🔹 garante que o select de setores seja recarregado
+
+  alert("Edite os campos e clique em 'Registrar Saída' para salvar as alterações.");
+}
+
+
+function excluirSaida(i) {
+  if (!confirm("Excluir esta saída?")) return;
+  saidas.splice(i, 1);
+  localStorage.setItem("saidas", JSON.stringify(saidas));
+  atualizarTabelaSaidas();
+  ordenarListasAlfabeticamente(); 
+}
+
+/* =========================
+   🔹 Atualiza setor automaticamente ao digitar ou ler código de barras
+========================= */
+function atualizarSetorAutomatico() {
+  const produtoInput = document.getElementById("saidaProduto");
+  const codigoInput = document.getElementById("saidaCodigoBarras");
+  const setorSelect = document.getElementById("saidaSetor");
+
+  if (!produtoInput || !setorSelect) return;
+
+  const nomeProduto = produtoInput.value.trim();
+  const codigo = codigoInput ? codigoInput.value.trim() : "";
+
+  let entradaEncontrada = null;
+
+  // 🔹 Primeiro tenta achar pela leitura do código de barras
+  if (codigo && Array.isArray(produtos)) {
+    const produto = produtos.find(p => p.codigoBarras === codigo);
+    if (produto) {
+      produtoInput.value = produto.nome;
+      entradaEncontrada = (entradas || []).slice().reverse().find(e => e.produto === produto.nome);
+    }
+  }
+
+  // 🔹 Se não achou pelo código, busca pelo nome
+  if (!entradaEncontrada && nomeProduto) {
+    entradaEncontrada = (entradas || []).slice().reverse().find(e => e.produto === nomeProduto);
+  }
+
+  // 🔹 Atualiza o campo de setor
+  if (entradaEncontrada) {
+    setorSelect.innerHTML = `<option value="${entradaEncontrada.setor}">${entradaEncontrada.setor}</option>`;
+  } else {
+    setorSelect.innerHTML = `<option value="">Setor não encontrado</option>`;
+  }
+}
+
+
+
+/* =========================
+   🔹 Atualizar Estoque
+========================= */
+function atualizarEstoque(produto, delta) {
+  const item = produtos.find((p) => p.nome === produto);
+  if (item) {
+    item.quantidade = (item.quantidade || 0) + delta;
+    if (item.quantidade < 0) item.quantidade = 0;
+    localStorage.setItem("produtos", JSON.stringify(produtos));
+    atualizarTabelaEstoque();
+	ordenarListasAlfabeticamente();
+  }
+}
+
+function atualizarTabelaEstoque() {
+  const tbody = document.querySelector("#tabelaEstoque tbody");
+  tbody.innerHTML = "";
+
+  if (!Array.isArray(produtos) || produtos.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#777;">Nenhum produto em estoque.</td></tr>`;
+    return;
+  }
+
+  produtos.forEach((p, i) => {
+    const status = p.quantidade > 0 ? "✅ OK" : "⚠️ Vazio";
+
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${i + 1}</td>
+      <td>${p.nome || "-"}</td>
+      <td>${p.codigoBarras || "-"}</td>
+      <td>${p.categoria || "-"}</td>
+      <td>${p.quantidade || 0}</td>
+      <td>${p.lote || "-"}</td>
+      <td>${p.validade || "-"}</td>
+      <td>${status}</td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+
+
+// 🔹 Atualiza a tabela principal de produtos com limites
+function atualizarTabelaLimites() {
+  const produtos = JSON.parse(localStorage.getItem("produtos")) || [];
+  const filtroTexto = (document.getElementById("filtroLimite")?.value || "").toLowerCase();
+  const filtroCategoria = (document.getElementById("filtroCategoria")?.value || "").toLowerCase();
+  const tbody = document.querySelector("#tabelaLimites tbody");
+  const resumo = document.getElementById("resumoEstoque");
+
+  if (!tbody) return;
+  tbody.innerHTML = "";
+
+  let total = 0,
+      abaixo = 0,
+      dentro = 0,
+      acima = 0;
+
+  if (!produtos.length) {
+    tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; color:#777;">Nenhum produto cadastrado.</td></tr>`;
+    if (resumo)
+      resumo.innerHTML = `🧾 Total de Produtos: 0 | ⚠️ Abaixo do Mínimo: 0 | ✅ Dentro do Limite: 0 | 📦 Acima do Máximo: 0`;
+    return;
+  }
+
+  produtos.forEach((p, i) => {
+    const nome = (p.nome || "").toLowerCase();
+    const categoria = (p.categoria || "").toLowerCase();
+
+    const minimo = Number(p.minimo) || 0;
+    const maximo = Number(p.maximo) || 0;
+    const qtd = Number(p.quantidade) || 0;
+
+    // calcula status e recomendação ANTES do filtro de texto
+    let statusTexto = "";
+    let statusCor = "";
+    let recomendacao = "";
+
+    if (qtd < minimo) {
+      statusTexto = "⚠️ Abaixo do mínimo";
+      statusCor = "red";
+      recomendacao = `Comprar ${minimo - qtd} unidade(s)`;
+    } else if (maximo && qtd > maximo) {
+      statusTexto = "📦 Acima do máximo";
+      statusCor = "orange";
+      recomendacao = "Reduzir estoque";
+    } else {
+      statusTexto = "✅ Dentro do limite";
+      statusCor = "green";
+      recomendacao = "OK";
+    }
+
+    // ------- FILTROS -------
+    // filtroCategoria (mantém comportamento anterior)
+    if (filtroCategoria && filtroCategoria !== "" && categoria !== filtroCategoria) return;
+
+    // filtroTexto: busca em vários campos (produto, codigoBarras, categoria, qtd, status, recomendação)
+    if (filtroTexto) {
+      const codigo = (p.codigoBarras || "").toLowerCase();
+      const qtdStr = String(qtd).toLowerCase();
+      const statusLower = statusTexto.toLowerCase();
+      const recLower = (recomendacao || "").toLowerCase();
+
+      const matches =
+        nome.includes(filtroTexto) ||
+        codigo.includes(filtroTexto) ||
+        categoria.includes(filtroTexto) ||
+        qtdStr.includes(filtroTexto) ||
+        statusLower.includes(filtroTexto) ||
+        recLower.includes(filtroTexto);
+
+      if (!matches) return; // não passa no filtro
+    }
+    // ------------------------
+
+    total++;
+
+    // contadores
+    if (qtd < minimo) abaixo++;
+    else if (maximo && qtd > maximo) acima++;
+    else dentro++;
+
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${i + 1}</td>
+      <td>${p.nome || "-"}</td>
+      <td>${p.codigoBarras || "-"}</td>
+      <td>${p.categoria || "-"}</td>
+      <td>${qtd}</td>
+      <td><input type="number" id="min-${i}" value="${minimo}" style="width:80px" /></td>
+      <td><input type="number" id="max-${i}" value="${maximo}" style="width:80px" /></td>
+      <td style="color:${statusCor}; font-weight:bold;">${statusTexto}</td>
+      <td>${recomendacao}</td>
+      <td><button onclick="salvarLimites(${i})"><i class="fa fa-save"></i></button></td>
+    `;
+    tbody.appendChild(row);
+  });
+
+  // 🔹 Atualiza contador superior
+  if (resumo)
+    resumo.innerHTML = `
+      🧾 Total de Produtos: ${total} |
+      ⚠️ Abaixo do Mínimo: ${abaixo} |
+      ✅ Dentro do Limite: ${dentro} |
+      📦 Acima do Máximo: ${acima}
+    `;
+}
+
+
+
+
+
+// 🔹 Gera lista de compra (todos os produtos abaixo do mínimo)
+
+function gerarListaCompra() {
+  const container = document.getElementById("listaCompraContainer");
+  const tabela = document.getElementById("tabelaListaCompra");
+  const tbody = tabela ? tabela.querySelector("tbody") : null;
+  const totalSpan = document.getElementById("totalItensCompra");
+
+  if (!container || !tabela || !tbody || !totalSpan) {
+    console.error("⚠️ Elementos da lista de compra não encontrados no DOM.");
+    alert("Erro: tabela da lista de compra não encontrada. Verifique o HTML.");
+    return;
+  }
+
+  const produtos = JSON.parse(localStorage.getItem("produtos")) || [];
+  if (!produtos.length) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#777;">Nenhum produto cadastrado.</td></tr>`;
+    totalSpan.textContent = "0";
+    container.style.display = "block";
+    return;
+  }
+
+  // 🔹 Filtro de categoria (se existir)
+  const filtroCategoria = (document.getElementById("filtroCategoria")?.value || "").toLowerCase();
+
+  // 🔹 Filtra produtos abaixo do mínimo
+  const produtosAbaixo = produtos.filter(p => {
+    const categoria = (p.categoria || "").toLowerCase();
+    const qtd = Number(p.quantidade) || 0;
+    const minimo = Number(p.minimo) || 0;
+    if (filtroCategoria && filtroCategoria !== "" && categoria !== filtroCategoria) return false;
+    return qtd < minimo;
+  });
+
+  tbody.innerHTML = "";
+
+  if (!produtosAbaixo.length) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:green;">✅ Nenhum produto abaixo do mínimo.</td></tr>`;
+    totalSpan.textContent = "0";
+    container.style.display = "block";
+    return;
+  }
+
+  // 🔹 Monta tabela com os valores corretos de “Recomendado Comprar”
+  let totalItens = 0;
+
+  produtosAbaixo.forEach((p, i) => {
+    const qtdAtual = Number(p.quantidade) || 0;
+    const minimo = Number(p.minimo) || 0;
+    const comprar = minimo > qtdAtual ? minimo - qtdAtual : 0;
+    const codigoBarras = p.codigoBarras || "-";
+
+    totalItens++;
+
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${i + 1}</td>
+      <td>${p.nome}</td>
+      <td>${codigoBarras}</td>
+      <td>${p.categoria || "-"}</td>
+      <td>${qtdAtual}</td>
+      <td>${minimo}</td>
+      <td style="color:red; font-weight:bold;">${comprar}</td>
+    `;
+    tbody.appendChild(row);
+  });
+
+  // 🔹 Atualiza total e exibe tabela
+  totalSpan.textContent = totalItens;
+  container.style.display = "block";
+}
+
+
+
+// 🔹 Limpa lista gerada
+function limparListaCompra() {
+  const tbody = document.querySelector("#tabelaListaCompra tbody");
+  const totalSpan = document.getElementById("totalItensCompra");
+  const container = document.getElementById("listaCompraContainer");
+
+  // 🔹 Limpa a lista de compra
+  if (tbody) tbody.innerHTML = "";
+  if (totalSpan) totalSpan.textContent = "0";
+  if (container) container.style.display = "none";
+
+  // 🔹 Retorna a exibição da tabela principal com todos os produtos
+  atualizarTabelaLimites(); // 👈 volta a mostrar todos os produtos no estoque
+}
+
+
+
+
+function salvarLimites(i) {
+  const min = +document.getElementById(`min-${i}`).value;
+  const max = +document.getElementById(`max-${i}`).value;
+
+  if (isNaN(min) || isNaN(max)) {
+    alert("Por favor, insira valores válidos para mínimo e máximo!");
+    return;
+  }
+
+  produtos[i].minimo = min;
+  produtos[i].maximo = max;
+  localStorage.setItem("produtos", JSON.stringify(produtos));
+  alert("Limites atualizados com sucesso!");
+  atualizarTabelaLimites();
+  ordenarListasAlfabeticamente();
+}
+
+
+
+
+/* =========================
+   🔹 Financeiro
+========================= */
+function atualizarPainelFinanceiro() {
+  const entradas = JSON.parse(localStorage.getItem("entradas")) || [];
+  const saidas = JSON.parse(localStorage.getItem("saidas")) || [];
+  const produtos = JSON.parse(localStorage.getItem("produtos")) || [];
+
+  let valorTotalEntradas = 0;
+  let valorTotalSaidas = 0;
+
+  // 🔹 Calcular total de entradas e saídas (financeiro geral)
+  entradas.forEach(e => {
+    valorTotalEntradas += (e.valor || 0) * (e.qtd || 0);
+  });
+
+  saidas.forEach(s => {
+    // ⚠️ Se o produto existe em entradas, usa o valor unitário dele
+    const entradaRelacionado = entradas.find(
+      e => e.produto && s.produto && e.produto.toLowerCase() === s.produto.toLowerCase()
+    );
+    const valorUnitario = entradaRelacionado ? (entradaRelacionado.valor || 0) : 0;
+    valorTotalSaidas += valorUnitario * (s.qtd || 0);
+  });
+
+  // 🔹 Valor total contábil do estoque (entradas - saídas)
+  const valorEstoqueAtual = valorTotalEntradas - valorTotalSaidas;
+
+  // Atualiza os dois indicadores principais (já existentes)
+  document.getElementById("valorEstoque").textContent = `R$ ${valorEstoqueAtual.toFixed(2)}`;
+  document.getElementById("valorSaidas").textContent = `R$ ${valorTotalSaidas.toFixed(2)}`;
+
+  // --------------------------------------------------------------------------------
+  // 💰 Cálculo de Último valor de entrada, CMP e Estoque Atual (três novos valores)
+  // --------------------------------------------------------------------------------
+  let qtdTotal = 0;
+  let valorTotalUltimaEntrada = 0;
+  let valorTotalCustoMedio = 0;
+
+  produtos.forEach(p => {
+    const entradasDoProduto = entradas.filter(e => e.produto === p.nome);
+    if (entradasDoProduto.length === 0) return;
+
+    // Último valor de entrada
+    const ultimaEntrada = entradasDoProduto.slice(-1)[0];
+    const valorUltimo = Number(ultimaEntrada.valor || 0);
+
+    // Custo médio ponderado
+    const totalQtdEntradas = entradasDoProduto.reduce((s, e) => s + Number(e.qtd || 0), 0);
+    const totalValorEntradas = entradasDoProduto.reduce(
+      (s, e) => s + (Number(e.qtd || 0) * Number(e.valor || 0)),
+      0
+    );
+    const custoMedio = totalQtdEntradas > 0 ? totalValorEntradas / totalQtdEntradas : 0;
+
+    const qtdAtual = Number(p.quantidade || 0);
+    qtdTotal += qtdAtual;
+    valorTotalUltimaEntrada += qtdAtual * valorUltimo;
+    valorTotalCustoMedio += qtdAtual * custoMedio;
+  });
+
+  const valorTotalEstoqueAtualPainel = (valorTotalUltimaEntrada + valorTotalCustoMedio) / 2;
+
+  // Atualiza os novos indicadores
+  document.getElementById("valorUltimaEntrada").textContent = `R$ ${valorTotalUltimaEntrada.toFixed(2)}`;
+  document.getElementById("valorCustoMedio").textContent = `R$ ${valorTotalCustoMedio.toFixed(2)}`;
+  document.getElementById("valorEstoqueAtualPainel").textContent = `R$ ${valorTotalEstoqueAtualPainel.toFixed(2)}`;
+
+  // --------------------------------------------------------------------------------
+  // 📦 Agrupar por fornecedor e nota fiscal (mantido igual ao seu original)
+  // --------------------------------------------------------------------------------
+  const agrupadas = {};
+
+  entradas.forEach(e => {
+    const fornecedor = e.fornecedor || "Fornecedor não informado";
+    const nota = e.nota || "Sem Nota Fiscal";
+    const chave = `${fornecedor}_${nota}`;
+
+    if (!agrupadas[chave]) {
+      agrupadas[chave] = {
+        fornecedor,
+        nota,
+        valorNota: 0,
+        valorSaida: 0
+      };
+    }
+
+    agrupadas[chave].valorNota += (e.valor || 0) * (e.qtd || 0);
+  });
+
+  saidas.forEach(s => {
+    const entrada = entradas.find(
+      e => e.produto && s.produto && e.produto.toLowerCase() === s.produto.toLowerCase()
+    );
+    if (!entrada) return;
+
+    const fornecedor = entrada.fornecedor || "Fornecedor não informado";
+    const nota = entrada.nota || "Sem Nota Fiscal";
+    const chave = `${fornecedor}_${nota}`;
+
+    const valorUnitario = entrada.valor || 0;
+    const valorSaida = valorUnitario * (s.qtd || 0);
+
+    if (agrupadas[chave]) {
+      agrupadas[chave].valorSaida += valorSaida;
+    }
+  });
+
+  // Renderizar tabela agrupada
+  const tbody = document.querySelector("#tabelaFinanceiro tbody");
+  tbody.innerHTML = "";
+  Object.values(agrupadas).forEach(a => {
+    const saldo = a.valorNota - a.valorSaida;
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${a.fornecedor}</td>
+      <td>${a.nota}</td>
+      <td>R$ ${a.valorNota.toFixed(2)}</td>
+      <td>R$ ${saldo.toFixed(2)}</td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+
+
+
+
+/* =========================
+   🔹 Relatórios
+========================= */
+/* =========================
+   🔹 Relatórios (corrigido)
+========================= */
+function exportarCSV(nome, dados) {
+  if (!dados.length) return alert("Nenhum dado encontrado!");
+  const header = Object.keys(dados[0]).join(";");
+  const rows = dados.map((obj) => Object.values(obj).join(";"));
+  const csv = [header, ...rows].join("\n");
+  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = nome + ".csv";
+  link.click();
+}
+
+function gerarRelatorioProdutos() {
+  exportarCSV("Produtos", produtos);
+}
+
+function gerarRelatorioEntradas() {
+  exportarCSV("Entradas", entradas);
+}
+
+function gerarRelatorioSaidas() {
+  exportarCSV("Saidas", saidas);
+}
+
+function gerarRelatorioEstoque() {
+  const dados = produtos.map((p) => ({
+    nome: p.nome,
+    categoria: p.categoria,
+    quantidade: p.quantidade || 0
+  }));
+  exportarCSV("Estoque", dados);
+}
+
+/* =========================
+   🔹 Usuários
+========================= */
+let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+
+function salvarUsuario() {
+  const nome = document.getElementById("usuarioNome").value.trim();
+  const cpf = document.getElementById("usuarioCPF").value.trim();
+  const email = document.getElementById("usuarioEmail").value.trim();
+  const senha = document.getElementById("usuarioSenha").value.trim();
+  const perfil = document.getElementById("usuarioPerfil").value;
+  if (!nome || !senha) return alert("Preencha os campos obrigatórios!");
+
+  usuarios.push({ nome, cpf, email, senha, perfil });
+  localStorage.setItem("usuarios", JSON.stringify(usuarios));
+  atualizarTabelaUsuarios();
+  ordenarListasAlfabeticamente();
+}
+
+function atualizarTabelaUsuarios() {
+  const tbody = document.querySelector("#tabelaUsuarios tbody");
+  tbody.innerHTML = "";
+  usuarios.forEach((u, i) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${i + 1}</td>
+      <td>${u.nome}</td>
+      <td>${u.cpf || "-"}</td>
+      <td>${u.email || "-"}</td>
+      <td>${u.perfil}</td>
+      <td><button onclick="excluirUsuario(${i})"><i class="fa fa-trash"></i></button></td>`;
+    tbody.appendChild(row);
+  });
+}
+
+function excluirUsuario(i) {
+  if (!confirm("Excluir este usuário?")) return;
+  usuarios.splice(i, 1);
+  localStorage.setItem("usuarios", JSON.stringify(usuarios));
+  atualizarTabelaUsuarios();
+}
+
+/* =========================
+   🔹 Inicialização
+========================= */
+window.addEventListener("load", () => {
+  produtos = JSON.parse(localStorage.getItem("produtos")) || [];
+  entradas = JSON.parse(localStorage.getItem("entradas")) || [];
+  saidas = JSON.parse(localStorage.getItem("saidas")) || [];
+  usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+
+  atualizarTabelaProdutos();
+  atualizarTabelaEntradas();
+  atualizarTabelaSaidas();
+  atualizarTabelaEstoque();
+  atualizarTabelaUsuarios();
+  atualizarPainelFinanceiro();
+
+  const sess = JSON.parse(localStorage.getItem("usuarioLogado"));
+  if (sess) {
+    window.usuarioLogado = sess;
+    document.getElementById("loginView").style.display = "none";
+    document.getElementById("mainApp").style.display = "block";
+    document.getElementById("userName").textContent = sess.nome;
+    document.getElementById("perfilBadge").textContent = "Perfil: " + sess.perfil.toUpperCase();
+    aplicarPermissoes();
+  }
+});
+function gerarPedidoPDF() {
+  const { jsPDF } = window.jspdf;
+  const tabela = document.getElementById("tabelaListaCompra");
+  if (!tabela) return alert("Lista de compra não encontrada!");
+
+  // 🔹 Obtém nome do solicitante do perfil
+  const usuario = JSON.parse(localStorage.getItem("usuario")) || {};
+  const nomeSolicitante = usuario.nome || "Não informado";
+
+  // 🔹 Cria documento
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  const larguraPagina = doc.internal.pageSize.getWidth();
+  const dataAtual = new Date().toLocaleDateString();
+
+  // ---------- CABEÇALHO ----------
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.text("ORAL UNIC CAMPO GRANDE", larguraPagina / 2, 20, { align: "center" });
+
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "normal");
+  doc.text("Pedido de Orçamento", larguraPagina / 2, 28, { align: "center" });
+
+  doc.setFontSize(10);
+  doc.text(`Data: ${dataAtual}`, 14, 38);
+  doc.text(`Solicitante: ${nomeSolicitante}`, 14, 44);
+
+  // ---------- LINHA SEPARADORA ----------
+  doc.setDrawColor(150);
+  doc.line(14, 48, larguraPagina - 14, 48);
+
+  // ---------- CABEÇALHO DA TABELA ----------
+  let y = 55;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.text("#", 14, y);
+  doc.text("Produto", 25, y);
+  doc.text("Categoria", 105, y);
+  doc.text("Recomendado Comprar", 170, y, { align: "right" });
+
+  // ---------- CONTEÚDO DA TABELA ----------
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  y += 7;
+
+  const linhas = tabela.querySelectorAll("tbody tr");
+
+  linhas.forEach((tr) => {
+    const cols = tr.querySelectorAll("td");
+    if (cols.length >= 6) {
+      const index = cols[0].innerText.trim();
+      const produto = cols[1].innerText.trim();
+      const categoria = cols[2].innerText.trim();
+      const comprar = cols[5].innerText.trim();
+
+      // quebra de página se necessário
+      if (y > 270) {
+        doc.addPage();
+        y = 20;
+      }
+
+      // texto alinhado nas margens seguras
+      doc.text(index, 14, y);
+      doc.text(produto, 25, y, { maxWidth: 75 }); // produto ocupa até 75mm
+      doc.text(categoria, 105, y, { maxWidth: 55 });
+      doc.text(comprar, 170, y, { align: "right" });
+
+      y += 7;
+    }
+  });
+
+  // ---------- RODAPÉ ----------
+  doc.setFont("helvetica", "italic");
+  doc.setFontSize(9);
+  doc.text(
+    "Gerado automaticamente pelo sistema de controle de estoque Oral Unic Campo Grande.",
+    larguraPagina / 2,
+    285,
+    { align: "center" }
+  );
+
+  // ---------- SALVAR ----------
+  const data = new Date().toLocaleDateString().replace(/\//g, "-");
+  doc.save(`Pedido_de_Orcamento_${data}.pdf`);
+}
+
+
+
+
+/* =========================
+   🔹 Modal de imagem
+========================= */
+document.body.insertAdjacentHTML("beforeend", `
+  <div id="imagemAmpliada" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,0.8);align-items:center;justify-content:center;z-index:9999;">
+    <img src="" style="max-width:90%;max-height:90%;border:4px solid white;border-radius:8px;">
+  </div>
+`);
+document.getElementById("imagemAmpliada").addEventListener("click", () => {
+  document.getElementById("imagemAmpliada").style.display = "none";
+});
+// Sempre que a página carregar ou for aberta
+document.addEventListener("DOMContentLoaded", () => {
+  // 🔹 1. Garante que as listas sejam ordenadas logo ao abrir
+  if (typeof ordenarListasAlfabeticamente === "function") {
+    ordenarListasAlfabeticamente();
+    console.log("Listas carregadas e ordenadas com sucesso!");
+  }
+
+  // 🔹 2. Atualiza a tabela de limites (sua função original)
+  if (document.getElementById("tabelaLimites") && typeof atualizarTabelaLimites === "function") {
+    atualizarTabelaLimites();
+  }
+});
+
+/* =========================
+   🔹 Padronização de texto: Primeira letra maiúscula, resto minúsculo
+========================= */
+function formatarTextoPadrao(texto) {
+  return texto
+    .toLowerCase()
+    .split(" ")
+    .filter(p => p.trim() !== "")
+    .map(p => p.charAt(0).toUpperCase() + p.slice(1))
+    .join(" ");
+}
+
+/* 🔸 Aplica automaticamente ao sair do campo de texto */
+document.addEventListener("blur", (e) => {
+  const el = e.target;
+  if (el.tagName === "INPUT" && el.type === "text") {
+    // Ignora campos que não devem ser alterados
+    if (
+      el.id.toLowerCase().includes("cnpj") ||
+      el.id.toLowerCase().includes("email") ||
+      el.id.toLowerCase().includes("login")
+    ) return;
+
+    el.value = formatarTextoPadrao(el.value);
+  }
+}, true);
+
+/* 🔸 Garante padronização antes de salvar/cadastrar */
+function padronizarCamposAntesDeSalvar() {
+  document.querySelectorAll('input[type="text"]').forEach(el => {
+    if (
+      !el.id.toLowerCase().includes("cnpj") &&
+      !el.id.toLowerCase().includes("email") &&
+      !el.id.toLowerCase().includes("login")
+    ) {
+      el.value = formatarTextoPadrao(el.value);
+    }
+  });
+}
+
+/* ========================= DASHBOARD ========================= */
+function atualizarDashboard() {
+  const listaProximosVencer = document.getElementById("listaProximosVencer");
+  const listaMaisCaros = document.getElementById("listaMaisCaros");
+  const listaMaisSaidas = document.getElementById("listaMaisSaidas");
+  const listaMenosSaidas = document.getElementById("listaMenosSaidas");
+  const listaEstoqueCritico = document.getElementById("listaEstoqueCritico");
+  const resumoGeral = document.getElementById("resumoGeral");
+
+  const produtosLocal = JSON.parse(localStorage.getItem("produtos")) || produtos || [];
+  const entradasLocal = JSON.parse(localStorage.getItem("entradas")) || entradas || [];
+  const saidasLocal = JSON.parse(localStorage.getItem("saidas")) || saidas || [];
+
+  if (!Array.isArray(produtosLocal) || produtosLocal.length === 0) {
+    resumoGeral.innerHTML = "<p>Sem dados de produtos no momento.</p>";
+    return;
+  }
+
+  // ---------- Produtos próximos do vencimento ----------
+  const proximos = entradasLocal
+    .filter(e => e.validade)
+    .sort((a, b) => new Date(a.validade) - new Date(b.validade))
+    .slice(0, 5);
+
+  listaProximosVencer.innerHTML =
+    proximos.length > 0
+      ? proximos
+          .map(e => `<li>${e.produto} - vence em ${new Date(e.validade).toLocaleDateString("pt-BR")}</li>`)
+          .join("")
+      : "<li>Nenhum produto com validade próxima.</li>";
+
+  // ---------- Produtos mais caros ----------
+  const mapaValores = {};
+  entradasLocal.forEach(e => {
+    if (!e.produto || !e.valor) return;
+    mapaValores[e.produto] = e.valor; // último valor registrado
+  });
+
+  const maisCaros = Object.entries(mapaValores)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+
+  listaMaisCaros.innerHTML =
+    maisCaros.length > 0
+      ? maisCaros.map(([nome, valor]) => `<li>${nome} - R$ ${valor.toFixed(2)}</li>`).join("")
+      : "<li>Sem dados de valor.</li>";
+
+  // ---------- Produtos mais e menos utilizados ----------
+  const contadorSaidas = {};
+  saidasLocal.forEach(s => {
+    if (!s.produto || !s.qtd) return;
+    contadorSaidas[s.produto] = (contadorSaidas[s.produto] || 0) + Number(s.qtd);
+  });
+
+  const maisUsados = Object.entries(contadorSaidas)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+  listaMaisSaidas.innerHTML =
+    maisUsados.length > 0
+      ? maisUsados.map(([nome, qtd]) => `<li>${nome} - ${qtd} saídas</li>`).join("")
+      : "<li>Sem saídas registradas.</li>";
+
+  const menosUsados = Object.entries(contadorSaidas)
+    .sort((a, b) => a[1] - b[1])
+    .slice(0, 5);
+  listaMenosSaidas.innerHTML =
+    menosUsados.length > 0
+      ? menosUsados.map(([nome, qtd]) => `<li>${nome} - ${qtd} saídas</li>`).join("")
+      : "<li>Sem saídas registradas.</li>";
+
+  // ---------- Estoque crítico ----------
+  const criticos = produtosLocal.filter(p => p.minimo && p.quantidade <= p.minimo);
+  listaEstoqueCritico.innerHTML =
+    criticos.length > 0
+      ? criticos.map(p => `<li>${p.nome} - Estoque atual: ${p.quantidade}</li>`).join("")
+      : "<li>Nenhum produto crítico no momento.</li>";
+
+  // ---------- Resumo geral ----------
+  let totalProdutos = produtosLocal.length;
+  let qtdTotal = 0;
+  let valorTotalUltimaEntrada = 0;
+  let valorTotalCustoMedio = 0;
+
+  produtosLocal.forEach(p => {
+    const entradasDoProduto = entradasLocal.filter(e => e.produto === p.nome);
+    if (entradasDoProduto.length === 0) return;
+
+    // Último valor de entrada
+    const ultimaEntrada = entradasDoProduto.slice(-1)[0];
+    const valorUltimo = Number(ultimaEntrada.valor || 0);
+
+    // Custo médio ponderado
+    const totalQtdEntradas = entradasDoProduto.reduce((s, e) => s + Number(e.qtd || 0), 0);
+    const totalValorEntradas = entradasDoProduto.reduce(
+      (s, e) => s + (Number(e.qtd || 0) * Number(e.valor || 0)),
+      0
+    );
+    const custoMedio = totalQtdEntradas > 0 ? totalValorEntradas / totalQtdEntradas : 0;
+
+    const qtdAtual = Number(p.quantidade || 0);
+    qtdTotal += qtdAtual;
+    valorTotalUltimaEntrada += qtdAtual * valorUltimo;
+    valorTotalCustoMedio += qtdAtual * custoMedio;
+  });
+
+  // ---------- Valor contábil (entradas - saídas) ----------
+  const valorTotalEntradas = entradasLocal.reduce((soma, e) => soma + (e.valor || 0) * (e.qtd || 0), 0);
+  const valorTotalSaidas = saidasLocal.reduce((soma, s) => {
+    const entradaRelacionado = entradasLocal.find(
+      e => e.produto && s.produto && e.produto.toLowerCase() === s.produto.toLowerCase()
+    );
+    const valorUnitario = entradaRelacionado ? entradaRelacionado.valor || 0 : 0;
+    return soma + valorUnitario * (s.qtd || 0);
+  }, 0);
+
+  const valorTotalEstoqueContabil = valorTotalEntradas - valorTotalSaidas;
+  const valorTotalEstoqueAtual = (valorTotalUltimaEntrada + valorTotalCustoMedio) / 2;
+  const totalSaidas = saidasLocal.reduce((soma, s) => soma + Number(s.qtd || 0), 0);
+
+  // ---------- Renderização no Resumo Geral ----------
+  resumoGeral.innerHTML = `
+    <p><b>Total de produtos:</b> ${totalProdutos}</p>
+    <p><b>Quantidade total em estoque:</b> ${qtdTotal}</p>
+    <p><b>Total de saídas registradas:</b> ${totalSaidas}</p>
+    <hr>
+    <p><b>💰 Valor total (Último valor de entrada):</b> R$ ${valorTotalUltimaEntrada.toFixed(2)}</p>
+    <p><b>📊 Valor total (Custo médio ponderado):</b> R$ ${valorTotalCustoMedio.toFixed(2)}</p>
+    <p><b>📦 Valor total do Estoque Atual:</b> R$ ${valorTotalEstoqueAtual.toFixed(2)}</p>
+    <p><b>💼 Valor total do Estoque Atual (Contábil):</b> R$ ${valorTotalEstoqueContabil.toFixed(2)}</p>
+  `;
+}
+
+
+
+
+
+/* =========================
+   🔹 Ordenação geral (produtos, fornecedores, usuários)
+========================= */
+function ordenarListasAlfabeticamente() {
+  // 🔹 Produtos (cadastro, entrada, saída, estoque)
+  if (typeof produtos !== "undefined" && Array.isArray(produtos)) {
+    produtos.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' }));
+    localStorage.setItem("produtos", JSON.stringify(produtos));
+	
+  }
+
+  // 🔹 Entradas (Painel Financeiro – fornecedor)
+  if (typeof entradas !== "undefined" && Array.isArray(entradas)) {
+    entradas.sort((a, b) =>
+      (a.fornecedor || "").localeCompare(b.fornecedor || "", 'pt-BR', { sensitivity: 'base' })
+    );
+    localStorage.setItem("entradas", JSON.stringify(entradas));
+  }
+
+  // 🔹 Usuários e Perfis (Gerenciar Usuários)
+  if (typeof usuarios !== "undefined" && Array.isArray(usuarios)) {
+    usuarios.sort((a, b) =>
+      (a.nome || "").localeCompare(b.nome || "", 'pt-BR', { sensitivity: 'base' })
+    );
+    localStorage.setItem("usuarios", JSON.stringify(usuarios));
+  }
+
+  // 🔹 Atualiza tabelas e selects se as funções existirem
+  if (typeof atualizarTabelaProdutos === "function") atualizarTabelaProdutos();
+  if (typeof atualizarTabelaEntradas === "function") atualizarTabelaEntradas();
+  if (typeof atualizarTabelaSaidas === "function") atualizarTabelaSaidas();
+  if (typeof atualizarTabelaLimites === "function") atualizarTabelaLimites();
+  if (typeof atualizarPainelFinanceiro === "function") atualizarPainelFinanceiro();
+  if (typeof atualizarTabelaUsuarios === "function") atualizarTabelaUsuarios();
+     if (typeof atualizarDashboard === "function") atualizarDashboard();
+  
+     if (typeof atualizarDashboard === "function") atualizarDashboard();
+  
+
+  // 🔹 Atualiza selects de produto (Entrada e Saída)
+  atualizarSelectProdutos();
+}
+
+/* 🔸 Atualiza todos os <select> de produtos em ordem alfabética */
+/* =========================
+   🔹 Atualiza o <select> de produtos em ordem alfabética
+========================= */
+function atualizarSelectProdutos() {
+  const selectEntrada = document.getElementById("entradaProduto");
+  if (!selectEntrada) return; // evita erro se o campo não existir ainda
+
+  // limpa todas as opções
+  selectEntrada.innerHTML = "";
+
+  // garante que a lista esteja ordenada
+  const listaOrdenada = [...produtos].sort((a, b) =>
+    a.nome.localeCompare(b.nome, "pt-BR", { sensitivity: "base" })
+  );
+
+  // adiciona as opções
+  listaOrdenada.forEach(p => {
+    const opt = document.createElement("option");
+    opt.value = p.nome;
+    opt.textContent = p.nome;
+    selectEntrada.appendChild(opt);
+  });
+}
+
+/* =========================
+   🔍 FILTROS DE BUSCA
+========================= */
+
+// 🔹 Produtos: busca por nome ou categoria
+function filtrarProdutos() {
+  const termo = document.getElementById("filtroProduto").value.toLowerCase();
+  const tbody = document.querySelector("#tabelaProdutos tbody");
+  tbody.querySelectorAll("tr").forEach(tr => {
+    const texto = tr.textContent.toLowerCase();
+    tr.style.display = texto.includes(termo) ? "" : "none";
+  });
+}
+
+// 🔹 Entradas: busca por produto, fornecedor ou nota fiscal
+function filtrarEntradas() {
+  const termo = document.getElementById("filtroEntrada").value.toLowerCase();
+  const tbody = document.querySelector("#tabelaEntradas tbody");
+  tbody.querySelectorAll("tr").forEach(tr => {
+    const texto = tr.textContent.toLowerCase();
+    tr.style.display = texto.includes(termo) ? "" : "none";
+  });
+}
+
+// 🔹 Saídas: busca por produto, setor ou responsável
+function filtrarSaidas() {
+  const termo = document.getElementById("filtroSaida").value.toLowerCase();
+  const tbody = document.querySelector("#tabelaSaidas tbody");
+  tbody.querySelectorAll("tr").forEach(tr => {
+    const texto = tr.textContent.toLowerCase();
+    tr.style.display = texto.includes(termo) ? "" : "none";
+  });
+}
+
+// 🔹 Estoque: busca por produto ou categoria
+function filtrarEstoque() {
+  const termo = document.getElementById("filtroEstoque").value.toLowerCase();
+  const tbody = document.querySelector("#tabelaEstoque tbody");
+  tbody.querySelectorAll("tr").forEach(tr => {
+    const texto = tr.textContent.toLowerCase();
+    tr.style.display = texto.includes(termo) ? "" : "none";
+  });
+}
+/* =========================
+   🧹 LIMPAR CAMPOS AUTOMATICAMENTE (GLOBAL)
+========================= */
+
+// 🔹 Função genérica — limpa todos os inputs e selects dentro de uma seção
+function limparCampos(secaoId) {
+  const secao = document.getElementById(secaoId);
+  if (!secao) return;
+  secao.querySelectorAll("input, select").forEach(el => {
+    if (el.type === "file") {
+      el.value = "";
+    } else if (el.tagName === "SELECT") {
+      el.selectedIndex = 0;
+    } else {
+      el.value = "";
+    }
+  });
+}
+
+/* =========================
+   🧾 APLICAÇÃO NAS FUNÇÕES DE AÇÃO
+========================= */
+
+
+// 🔹 CADASTRO DE PRODUTOS (wrapper seguro: limpa campos somente se houve sucesso)
+const _cadastrarProdutoOriginal = cadastrarProduto;
+cadastrarProduto = function() {
+  try {
+    const result = _cadastrarProdutoOriginal();
+    // Se a função retornar true -> sucesso, limpa após pequeno delay
+    if (result === true) {
+      // se houver FileReader assíncrono, o salvamento já fará persistência no onload;
+      // a limpeza visual pode esperar um curto tempo para garantir que onload tenha rodado.
+      setTimeout(() => limparCampos("cadastro"), 350);
+    } else {
+      // não limpar — deixa os valores preenchidos para correção
+      // opcional: rolar até o primeiro campo com borda vermelha
+      const erroEl = document.querySelector("#cadastro input[style*='2px solid red'], #cadastro select[style*='2px solid red']");
+      if (erroEl) erroEl.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  } catch (err) {
+    console.error("Erro ao cadastrar produto:", err);
+    // não limpar em caso de erro
+  }
+};
+
+
+// 🔹 ENTRADA DE MATERIAIS
+// 🔹 Wrapper que só limpa se a função tiver sucesso
+const _registrarEntradaOriginal = registrarEntrada;
+registrarEntrada = function() {
+  try {
+    const result = _registrarEntradaOriginal();
+    if (result === true) {
+      setTimeout(() => limparCampos("entrada"), 300);
+    } else {
+      const erroEl = document.querySelector("#entrada input[style*='red'], #entrada select[style*='red']");
+      if (erroEl) erroEl.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  } catch (err) {
+    console.error("Erro ao registrar entrada:", err);
+  }
+};
+
+
+
+
+
+
+// 🔹 GERENCIAR USUÁRIOS E PERFIS
+if (typeof salvarUsuario === "function") {
+  const _salvarUsuarioOriginal = salvarUsuario;
+  salvarUsuario = function() {
+    _salvarUsuarioOriginal();
+    setTimeout(() => limparCampos("usuarios"), 300);
+  };
+}
+
+/* =========================
+   📦 AÇÕES NO ESTOQUE MÍNIMO E MÁXIMO
+========================= */
+
+// 🔹 Após gerar lista de compra → exibe e permite nova ação
+const _gerarListaCompraOriginal = gerarListaCompra;
+gerarListaCompra = function() {
+  _gerarListaCompraOriginal();
+  // não limpa nada, apenas garante foco na tabela gerada
+  const container = document.getElementById("listaCompraContainer");
+  if (container) container.scrollIntoView({ behavior: "smooth" });
+};
+
+// 🔹 Após limpar lista → também limpa filtros e reseta tela
+const _limparListaCompraOriginal = limparListaCompra;
+limparListaCompra = function() {
+  _limparListaCompraOriginal();
+  setTimeout(() => limparCampos("limites"), 200);
+};
+
+// 🔹 Mostra mensagens visuais no canto da tela
+function mostrarMensagem(texto, tipo = "info") {
+  let box = document.getElementById("mensagemBox");
+  if (!box) {
+    box = document.createElement("div");
+    box.id = "mensagemBox";
+    document.body.appendChild(box);
+    Object.assign(box.style, {
+      position: "fixed",
+      top: "20px",
+      right: "20px",
+      zIndex: "9999",
+      padding: "10px 15px",
+      borderRadius: "6px",
+      fontFamily: "Segoe UI, sans-serif",
+      color: "#fff",
+      boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+      transition: "opacity 0.4s",
+    });
+  }
+
+  box.textContent = texto;
+  box.style.background =
+    tipo === "erro" ? "#dc3545" :
+    tipo === "sucesso" ? "#28a745" :
+    "#0d6efd";
+  box.style.opacity = "1";
+  setTimeout(() => (box.style.opacity = "0"), 3000);
+}
+
+// 🔹 Destaca o campo com erro
+function destacarErro(el, msg) {
+  el.style.border = "2px solid red";
+  el.focus();
+  mostrarMensagem(msg, "erro");
+}
+
+// 🔹 Remove marcações de erro
+function limparErros(secaoId) {
+  document.querySelectorAll(`#${secaoId} input, #${secaoId} select`).forEach(el => {
+    el.style.border = "1px solid #ccc";
+  });
+}
+
+
+/* =========================
+   📦 Exportar Lista de Compra para Excel (compatível com Excel BR)
+========================= */
+function exportarListaExcel() {
+  const container = document.getElementById("listaCompraContainer");
+  const tabela = document.getElementById("tabelaListaCompra");
+  const tbody = tabela ? tabela.querySelector("tbody") : null;
+
+  if (!tabela || !tbody) {
+    alert("⚠️ Nenhuma lista de compra gerada para exportar!");
+    return;
+  }
+
+  const estavaOculto = container && container.style.display === "none";
+  if (estavaOculto) container.style.display = "block";
+
+  const linhas = [...tbody.querySelectorAll("tr")].filter(tr => tr.textContent.trim() !== "");
+
+  if (linhas.length === 0) {
+    alert("⚠️ Nenhum item encontrado na lista de compra.");
+    if (estavaOculto) container.style.display = "none";
+    return;
+  }
+
+  // 🔹 Cabeçalho idêntico à tabela
+  const cabecalho = [
+    "#",
+    "Produto",
+    "Código de Barras",
+    "Categoria",
+    "Qtd Atual",
+    "Mínimo",
+    "Recomendado Comprar"
+  ];
+  let csv = [cabecalho.join(";")];
+
+  // 🔹 Linhas de dados
+  linhas.forEach(tr => {
+    const cols = tr.querySelectorAll("td");
+    const linha = [];
+    cols.forEach(td => linha.push(td.innerText.trim().replace(/\s+/g, " ")));
+    csv.push(linha.join(";"));
+  });
+
+  // 🔹 Cria o conteúdo CSV
+  const csvContent = csv.join("\n");
+
+  // Cria um Blob em ISO-8859-1 para abrir corretamente no Excel PT-BR
+  const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=ISO-8859-1;" });
+
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "Lista_de_Compra_Gerada.csv";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  if (estavaOculto) container.style.display = "none";
+
+  alert("✅ Lista de Compra Gerada exportada com sucesso!");
+}
+
+
+/* =========================
+   🔹 Controle de período do relatório
+========================= */
+function definirPeriodoRapido(tipo) {
+  const hoje = new Date();
+  const inicioEl = document.getElementById("dataInicioRelatorio");
+  const fimEl = document.getElementById("dataFimRelatorio");
+
+  let inicio = new Date(hoje);
+  let fim = new Date(hoje);
+
+  switch (tipo) {
+    case "hoje":
+      // Fica o dia atual
+      break;
+    case "7dias":
+      inicio.setDate(hoje.getDate() - 7);
+      break;
+    case "30dias":
+      inicio.setDate(hoje.getDate() - 30);
+      break;
+    case "mes":
+      inicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+      fim = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+      break;
+  }
+
+  inicioEl.value = inicio.toISOString().split("T")[0];
+  fimEl.value = fim.toISOString().split("T")[0];
+
+  
+}
+
+function limparPeriodo() {
+  document.getElementById("dataInicioRelatorio").value = "";
+  document.getElementById("dataFimRelatorio").value = "";
+}
+
+/* =========================
+   🔹 Gerar relatório por data (genérico)
+========================= */
+/* =========================
+   🔹 Gerar relatório por data (sem exibir tabela, exporta direto)
+========================= */
+function gerarRelatorio() {
+  const inicio = document.getElementById("dataInicioRelatorio").value;
+  const fim = document.getElementById("dataFimRelatorio").value;
+
+  if (!inicio || !fim) {
+    alert("⚠️ Selecione uma data de início e fim para gerar o relatório!");
+    return;
+  }
+
+  const dataInicio = new Date(inicio);
+  const dataFim = new Date(fim);
+
+  if (dataInicio > dataFim) {
+    alert("❌ A data inicial não pode ser maior que a final!");
+    return;
+  }
+
+  // 🔹 Pega todas as entradas do localStorage
+  const entradas = JSON.parse(localStorage.getItem("entradas")) || [];
+
+  // 🔹 Filtra somente as que estão dentro do intervalo
+  const filtradas = entradas.filter(e => {
+    const data = new Date(e.data);
+    return data >= dataInicio && data <= dataFim;
+  });
+
+  if (filtradas.length === 0) {
+    alert("📭 Nenhum registro encontrado nesse período.");
+    return;
+  }
+
+  // 🔹 Exporta os resultados filtrados para Excel
+  exportarRelatorioFiltrado(filtradas);
+
+  alert(`📊 Relatório de Entradas gerado de ${inicio} até ${fim}`);
+}
+
+/* =========================
+   📦 Exportar Relatório Filtrado para Excel
+========================= */
+function exportarRelatorioFiltrado(lista) {
+  let csv = [
+    ["Produto", "Quantidade", "Valor (R$)", "Data", "Nota Fiscal", "Fornecedor", "CNPJ", "Lote", "Validade", "Setor"].join(";")
+  ];
+
+  lista.forEach(e => {
+    csv.push([
+      e.produto,
+      e.qtd,
+      e.valor,
+      e.data,
+      e.nota,
+      e.fornecedor,
+      e.cnpj,
+      e.lote,
+      e.validade,
+      e.setor
+    ].join(";"));
+  });
+
+  const csvContent = csv.join("\n");
+  const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=ISO-8859-1;" });
+
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "Relatorio_Entradas.csv";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+function sincronizarNomeProdutoAntigo(novoNome, nomeAntigo) {
+  let alterado = false;
+
+  // Atualiza nome nas entradas
+  entradas.forEach(e => {
+    if (e.produto === nomeAntigo) {
+      e.produto = novoNome;
+      alterado = true;
+    }
+  });
+
+  // Atualiza nome nas saídas
+  saidas.forEach(s => {
+    if (s.produto === nomeAntigo) {
+      s.produto = novoNome;
+      alterado = true;
+    }
+  });
+
+  // Atualiza nome no estoque (caso mantenha cache separado)
+  produtos.forEach(p => {
+    if (p.nome === nomeAntigo) {
+      p.nome = novoNome;
+      alterado = true;
+    }
+  });
+
+  if (alterado) {
+    localStorage.setItem("entradas", JSON.stringify(entradas));
+    localStorage.setItem("saidas", JSON.stringify(saidas));
+    localStorage.setItem("produtos", JSON.stringify(produtos));
+    atualizarTabelaEntradas();
+    atualizarTabelaSaidas();
+    atualizarTabelaEstoque();
+    if (typeof atualizarTabelaLimites === "function") atualizarTabelaLimites();
+    if (typeof atualizarPainelFinanceiro === "function") atualizarPainelFinanceiro();
+  }
+}
+
+
+
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</body>
+</html>
+
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"></script>
+
+</body>
+</html>
