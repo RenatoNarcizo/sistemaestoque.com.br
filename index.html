@@ -1110,6 +1110,24 @@ document.addEventListener("keydown", function (event) {
     }
   }
 });
+// === USUÁRIO PADRÃO AUTOMÁTICO ===
+(function criarUsuarioPadrao() {
+  const usuariosSalvos = JSON.parse(localStorage.getItem("usuarios")) || [];
+
+  // Se não houver nenhum usuário, cria o padrão
+  if (usuariosSalvos.length === 0) {
+    const usuarioPadrao = {
+      nome: "admin",
+      senha: "123",
+      perfil: "Administrador" // pode mudar se quiser
+    };
+
+    usuariosSalvos.push(usuarioPadrao);
+    localStorage.setItem("usuarios", JSON.stringify(usuariosSalvos));
+
+    console.log("✅ Usuário padrão criado automaticamente: admin / 123");
+  }
+})();
 
 
 
@@ -3214,3 +3232,4 @@ function sincronizarNomeProdutoAntigo(novoNome, nomeAntigo) {
 
 </body>
 </html>
+
