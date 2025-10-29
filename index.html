@@ -10,7 +10,7 @@
 <!-- Firebase SDKs -->
 <script type="module">
   // Importa as funções necessárias
-  
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
   import { getFirestore, collection, addDoc, getDocs, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
@@ -1070,13 +1070,12 @@ document.addEventListener("DOMContentLoaded", () => {
   verificarSessao();
 });
 
-// === FUNÇÃO DE LOGIN ===
-<!-- === LOGIN COM FIREBASE === -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+<!-- 🔹 Firebase compatível com GitHub Pages -->
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
 
-  // 🔹 Configuração do seu Firebase
+<script>
   const firebaseConfig = {
     apiKey: "AIzaSyCPA79g3ucoytsNGWoJXXbnrXva40HieAQ",
     authDomain: "sistema-de-estoque-da603.firebaseapp.com",
@@ -1088,22 +1087,13 @@ document.addEventListener("DOMContentLoaded", () => {
     measurementId: "G-8R7RY041J9"
   };
 
-  // 🔹 Inicializa o Firebase
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
 
-  // === FUNÇÃO DE LOGIN (ONLINE) ===
   async function fazerLogin() {
     const nome = document.getElementById("usuarioLogin")?.value.trim();
     const senha = document.getElementById("senhaLogin")?.value.trim();
-    let msg = document.getElementById("loginMsg");
-
-    if (!msg) {
-      msg = document.createElement("p");
-      msg.id = "loginMsg";
-      msg.style.cssText = "margin-top:10px; font-weight:bold; text-align:center;";
-      document.getElementById("loginView").appendChild(msg);
-    }
+    const msg = document.getElementById("loginMsg");
 
     msg.style.display = "none";
     msg.textContent = "";
@@ -1116,7 +1106,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, nome, senha);
+      const userCredential = await auth.signInWithEmailAndPassword(nome, senha);
       const user = userCredential.user;
 
       msg.textContent = "✅ Login realizado com sucesso!";
@@ -1135,7 +1125,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // === PERMITIR LOGIN COM ENTER ===
+  // Permite pressionar ENTER para logar
   document.addEventListener("keydown", function (event) {
     const loginView = document.getElementById("loginView");
     if (loginView && loginView.style.display !== "none" && event.key === "Enter") {
@@ -1144,9 +1134,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 🔹 Torna a função global para poder chamar no HTML
   window.fazerLogin = fazerLogin;
 </script>
+
 
 
 
@@ -3252,9 +3242,3 @@ function sincronizarNomeProdutoAntigo(novoNome, nomeAntigo) {
 
 </body>
 </html>
-
-</body>
-</html>
-
-
-
