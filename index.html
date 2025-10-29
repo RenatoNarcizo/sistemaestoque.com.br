@@ -7,6 +7,34 @@
 
   <!-- Font Awesome (ícones modernos) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<!-- Firebase SDKs -->
+<script type="module">
+  // Importa as funções necessárias
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+  import { getFirestore, collection, addDoc, getDocs, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+
+  // 🔹 Suas configurações do Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyCPA79g3ucoytsNGWoJXXbnrXva40HieAQ",
+    authDomain: "sistema-de-estoque-da603.firebaseapp.com",
+    databaseURL: "https://sistema-de-estoque-da603-default-rtdb.firebaseio.com",
+    projectId: "sistema-de-estoque-da603",
+    storageBucket: "sistema-de-estoque-da603.firebasestorage.app",
+    messagingSenderId: "873551516123",
+    appId: "1:873551516123:web:f7ce215d844e6586e3d7fe",
+    measurementId: "G-8R7RY041J9"
+  };
+
+  // 🔹 Inicializa o Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // 🔹 Exporta para ser usado no restante do sistema
+  window.auth = auth;
+  window.db = db;
+</script>
 
   <style>
     :root {
@@ -1043,91 +1071,83 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // === FUNÇÃO DE LOGIN ===
-function fazerLogin() {
-  const nome = document.getElementById("usuarioLogin")?.value.trim();
-  const senha = document.getElementById("senhaLogin")?.value.trim();
-  let msg = document.getElementById("loginMsg");
+<!-- === LOGIN COM FIREBASE === -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
-  if (!msg) {
-    msg = document.createElement("p");
-    msg.id = "loginMsg";
-    msg.style.cssText = "margin-top:10px; font-weight:bold; text-align:center;";
-    document.getElementById("loginView").appendChild(msg);
-  }
+  // 🔹 Configuração do seu Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyCPA79g3ucoytsNGWoJXXbnrXva40HieAQ",
+    authDomain: "sistema-de-estoque-da603.firebaseapp.com",
+    databaseURL: "https://sistema-de-estoque-da603-default-rtdb.firebaseio.com",
+    projectId: "sistema-de-estoque-da603",
+    storageBucket: "sistema-de-estoque-da603.appspot.com",
+    messagingSenderId: "873551516123",
+    appId: "1:873551516123:web:f7ce215d844e6586e3d7fe",
+    measurementId: "G-8R7RY041J9"
+  };
 
-  msg.style.display = "none";
-  msg.textContent = "";
+  // 🔹 Inicializa o Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
 
-  if (!nome || !senha) {
-    msg.textContent = "⚠️ Preencha usuário e senha.";
-    msg.style.display = "block";
-    msg.style.color = "red";
-    return;
-  }
+  // === FUNÇÃO DE LOGIN (ONLINE) ===
+  async function fazerLogin() {
+    const nome = document.getElementById("usuarioLogin")?.value.trim();
+    const senha = document.getElementById("senhaLogin")?.value.trim();
+    let msg = document.getElementById("loginMsg");
 
-  const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
-  const usuarioEncontrado = usuarios.find(u => u.nome?.toLowerCase() === nome.toLowerCase());
+    if (!msg) {
+      msg = document.createElement("p");
+      msg.id = "loginMsg";
+      msg.style.cssText = "margin-top:10px; font-weight:bold; text-align:center;";
+      document.getElementById("loginView").appendChild(msg);
+    }
 
-  if (!usuarioEncontrado) {
-    msg.textContent = "❌ Usuário não encontrado!";
-    msg.style.display = "block";
-    msg.style.color = "red";
-    return;
-  }
+    msg.style.display = "none";
+    msg.textContent = "";
 
-  if (usuarioEncontrado.senha !== senha) {
-    msg.textContent = "🔒 Senha incorreta! Tente novamente.";
-    msg.style.display = "block";
-    msg.style.color = "red";
-    return;
-  }
+    if (!nome || !senha) {
+      msg.textContent = "⚠️ Preencha usuário e senha.";
+      msg.style.display = "block";
+      msg.style.color = "red";
+      return;
+    }
 
-  // ✅ Login bem-sucedido
-  msg.textContent = "✅ Login realizado com sucesso!";
-  msg.style.display = "block";
-  msg.style.color = "green";
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, nome, senha);
+      const user = userCredential.user;
 
-  const sessao = { ...usuarioEncontrado, logado: true, loginTime: Date.now() };
-  localStorage.setItem("usuarioLogado", JSON.stringify(sessao));
+      msg.textContent = "✅ Login realizado com sucesso!";
+      msg.style.display = "block";
+      msg.style.color = "green";
 
-  // 🔹 Exibe o sistema após um pequeno delay
-  setTimeout(() => mostrarSistema(sessao), 600);
-}
-// === PERMITIR LOGIN COM ENTER ===
-document.addEventListener("keydown", function (event) {
-  const loginView = document.getElementById("loginView");
-  const mainApp = document.getElementById("mainApp");
+      const sessao = { email: user.email, logado: true, loginTime: Date.now() };
+      localStorage.setItem("usuarioLogado", JSON.stringify(sessao));
 
-  if (loginView && loginView.style.display !== "none" && event.key === "Enter") {
-    event.preventDefault();
-    const usuario = document.getElementById("usuarioLogin").value.trim();
-    const senha = document.getElementById("senhaLogin").value.trim();
-
-    if (usuario && senha) {
-      fazerLogin();
-    } else {
-      alert("Digite usuário e senha antes de continuar!");
+      setTimeout(() => mostrarSistema(sessao), 600);
+    } catch (error) {
+      console.error("Erro no login:", error.message);
+      msg.textContent = "❌ Usuário ou senha incorretos!";
+      msg.style.display = "block";
+      msg.style.color = "red";
     }
   }
-});
-// === USUÁRIO PADRÃO AUTOMÁTICO ===
-(function criarUsuarioPadrao() {
-  const usuariosSalvos = JSON.parse(localStorage.getItem("usuarios")) || [];
 
-  // Se não houver nenhum usuário, cria o padrão
-  if (usuariosSalvos.length === 0) {
-    const usuarioPadrao = {
-      nome: "admin",
-      senha: "123",
-      perfil: "Administrador" // pode mudar se quiser
-    };
+  // === PERMITIR LOGIN COM ENTER ===
+  document.addEventListener("keydown", function (event) {
+    const loginView = document.getElementById("loginView");
+    if (loginView && loginView.style.display !== "none" && event.key === "Enter") {
+      event.preventDefault();
+      fazerLogin();
+    }
+  });
 
-    usuariosSalvos.push(usuarioPadrao);
-    localStorage.setItem("usuarios", JSON.stringify(usuariosSalvos));
+  // 🔹 Torna a função global para poder chamar no HTML
+  window.fazerLogin = fazerLogin;
+</script>
 
-    console.log("✅ Usuário padrão criado automaticamente: admin / 123");
-  }
-})();
 
 
 
@@ -3232,4 +3252,8 @@ function sincronizarNomeProdutoAntigo(novoNome, nomeAntigo) {
 
 </body>
 </html>
+
+</body>
+</html>
+
 
