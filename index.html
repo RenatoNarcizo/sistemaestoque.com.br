@@ -2074,7 +2074,7 @@ function atualizarTabelaLimites() {
       <td>${p.categoria || "-"}</td>
       <td>${qtd}</td>
       <td><input type="number" id="min-${i}" value="${minimo}" style="width:80px" /></td>
-      <td><input type="number" id="max-${i}" value="${maximo}" style="width:80px" /></td>
+      
       <td style="color:${statusCor}; font-weight:bold;">${statusTexto}</td>
       <td>${recomendacao}</td>
       <td><button onclick="salvarLimites(${i})"><i class="fa fa-save"></i></button></td>
@@ -2778,9 +2778,7 @@ function ordenarListasAlfabeticamente() {
 }
 
 /* 🔸 Atualiza todos os <select> de produtos em ordem alfabética */
-/* =========================
-   🔹 Atualiza o <select> de produtos em ordem alfabética
-========================= */
+
 function atualizarSelectProdutos() {
   const selectEntrada = document.getElementById("entradaProduto");
   if (!selectEntrada) return; // evita erro se o campo não existir ainda
@@ -3221,4 +3219,5 @@ function sincronizarNomeProdutoAntigo(novoNome, nomeAntigo) {
 
 </body>
 </html>
+
 
