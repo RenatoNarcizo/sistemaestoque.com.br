@@ -8,7 +8,20 @@
   <!-- Font Awesome (ícones modernos) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 <!-- Firebase SDKs -->
+<script type="module">
+  // Importa as funções necessárias
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+  import { getFirestore, collection, addDoc, getDocs, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
+  
+
+  
+
+  // 🔹 Exporta para ser usado no restante do sistema
+  window.auth = auth;
+  window.db = db;
+</script>
 
   <style>
     :root {
@@ -1045,9 +1058,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 <!-- 🔹 Firebase compatível com GitHub Pages -->
-<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
+
 
 
  // 🔹 Configuração do seu projeto Firebase
@@ -1387,7 +1398,6 @@ function atualizarTabelaProdutos() {
       <td style="font-size:12px; color:#555;">${p.codigoBarras || "-"}</td>
       <td>
         <button onclick="editarProduto(${i})"><i class="fa fa-edit"></i></button>
-        <button onclick="excluirProduto(${i})"><i class="fa fa-trash"></i></button>
       </td>
     `;
     tbody.appendChild(row);
@@ -2074,7 +2084,7 @@ function atualizarTabelaLimites() {
       <td>${p.categoria || "-"}</td>
       <td>${qtd}</td>
       <td><input type="number" id="min-${i}" value="${minimo}" style="width:80px" /></td>
-      
+      <td><input type="number" id="max-${i}" value="${maximo}" style="width:80px" /></td>
       <td style="color:${statusCor}; font-weight:bold;">${statusTexto}</td>
       <td>${recomendacao}</td>
       <td><button onclick="salvarLimites(${i})"><i class="fa fa-save"></i></button></td>
@@ -2778,7 +2788,9 @@ function ordenarListasAlfabeticamente() {
 }
 
 /* 🔸 Atualiza todos os <select> de produtos em ordem alfabética */
-
+/* =========================
+   🔹 Atualiza o <select> de produtos em ordem alfabética
+========================= */
 function atualizarSelectProdutos() {
   const selectEntrada = document.getElementById("entradaProduto");
   if (!selectEntrada) return; // evita erro se o campo não existir ainda
@@ -3208,6 +3220,9 @@ function sincronizarNomeProdutoAntigo(novoNome, nomeAntigo) {
 </script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
 </body>
 </html>
 
@@ -3219,6 +3234,3 @@ function sincronizarNomeProdutoAntigo(novoNome, nomeAntigo) {
 
 </body>
 </html>
-
-
-
