@@ -5,25 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sistema de Controle de Estoque – Oral Unic Campo Grande</title>
 
-  <!-- Font Awesome (ícones modernos) -->
+  <!-- Ícones Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-<!-- Firebase SDKs -->
-<script type="module">
-  // Importa as funções necessárias
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-  import { getFirestore, collection, addDoc, getDocs, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
-
-  
-
-  
-
-  // 🔹 Exporta para ser usado no restante do sistema
-  window.auth = auth;
-  window.db = db;
 </script>
 
-  <style>
+ <style>
     :root {
       --azul: #0d6efd;
       --azul-escuro: #003b88;
@@ -39,7 +25,7 @@
       color: #222;
     }
 
-    /* ========================= HEADER ========================= */
+    /* ======= CABEÇALHO ======= */
     header {
       display: flex;
       align-items: center;
@@ -54,7 +40,7 @@
     }
 
     header h1 {
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       font-weight: 600;
       margin: 0;
       display: flex;
@@ -74,32 +60,23 @@
       color: #e2e2e2;
     }
 
-   /* ========================= MENU LATERAL ========================= */
- #sidebar {
-  position: fixed;
-  top: 0;
-  left: -260px; /* escondido 10px a mais */
-  width: 250px;
-  height: 100%;
-  background: var(--azul-escuro);
-  color: var(--branco);
-  overflow-y: auto;
-  transition: left 0.3s ease;
-  z-index: 800;
-  padding-top: 60px;
-  border-right: none;
-  box-shadow: none;
-}
-
-/* Quando ativo (aberto) */
-#sidebar.active {
-  left: 0;
-}
-
-
-    #sidebar.active {
-      left: 0;
+    /* ======= MENU LATERAL ======= */
+    #sidebar {
+      position: fixed;
+      top: 0;
+      left: -260px;
+      width: 250px;
+      height: 100%;
+      background: var(--azul-escuro);
+      color: var(--branco);
+      overflow-y: auto;
+      transition: left 0.3s ease;
+      z-index: 800;
+      padding-top: 60px;
+      box-shadow: none;
     }
+
+    #sidebar.active { left: 0; }
 
     #sidebar button {
       display: block;
@@ -115,169 +92,42 @@
       transition: background 0.2s;
     }
 
-    #sidebar button i {
-      margin-right: 8px;
-      width: 18px;
-      text-align: center;
-    }
-
     #sidebar button:hover {
       background: rgba(255, 255, 255, 0.15);
     }
 
-    /* ========================= ÁREA PRINCIPAL ========================= */
-   main {
-  margin: 20px;
-  padding-left: 0;
-  transition: margin-left 0.3s ease;
-  overflow-x: hidden; /* impede overflow lateral */
-}
-
+    /* ======= ÁREA PRINCIPAL ======= */
+    main {
+      margin: 20px;
+      padding-left: 0;
+      transition: margin-left 0.3s ease;
+      overflow-x: hidden;
+    }
 
     @media (min-width: 900px) {
-      #sidebar.active + main {
-        margin-left: 250px;
-      }
+      #sidebar.active + main { margin-left: 250px; }
     }
 
-    /* ========================= TABELAS ========================= */
-.table-wrap {
-  max-height: 60vh;          /* altura máxima visível */
-  overflow-y: auto;          /* rolagem vertical */
-  overflow-x: auto;          /* rolagem horizontal se necessário */
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  scrollbar-width: thin;     /* Firefox */
-  scrollbar-color: #888 #f0f0f0;
-}
-
-/* 🔹 Mantém o cabeçalho fixo dentro da área rolável */
-.table-wrap table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 800px; /* evita desalinhamento */
-}
-
-.table-wrap table thead th {
-  position: sticky;
-  top: 0;
-  background: var(--azul);
-  color: #fff;
-  z-index: 10;
-  text-align: left;
-  padding: 10px 12px;
-  border: 1px solid #ddd;
-  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
-}
-
-.table-wrap table td {
-  border: 1px solid #ddd;
-  padding: 10px 12px;
-  font-size: 14px;
-}
-
-.table-wrap table tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-
-/* 🔹 Scrollbar estilizada */
-.table-wrap::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-.table-wrap::-webkit-scrollbar-track {
-  background: #f0f0f0;
-  border-radius: 8px;
-}
-.table-wrap::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 8px;
-}
-.table-wrap::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
-
-
-    /* ========================= BOTÕES ========================= */
-    button {
-      background: var(--azul);
-      color: var(--branco);
-      border: none;
-      padding: 7px 14px;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background 0.2s;
-      font-size: 14px;
-    }
-
-    button:hover {
-      background: var(--azul-escuro);
-    }
-
-    /* ========================= INPUTS E SELECTS ========================= */
-    input, select {
-      padding: 6px 8px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-      margin: 3px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    input:focus, select:focus {
-      border-color: var(--azul);
-    }
-
-    /* ========================= IMAGENS ========================= */
-    .thumb {
-      width: 60px;
-      height: 60px;
-      object-fit: cover;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-
-    .thumb:hover {
-      transform: scale(1.08);
-      box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
-    }
-
-    #imagemAmpliada {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 999;
-    }
-
-    #imagemAmpliada img {
-      max-width: 90%;
-      max-height: 90%;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-
-    /* ========================= LOGIN ========================= */
-    .login-container {
+    /* ======= LOGIN ======= */
+    #loginView {
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
       background: linear-gradient(135deg, var(--azul), var(--azul-escuro));
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      overflow: hidden;
+      z-index: 1000;
     }
 
     .login-card {
       background: var(--branco);
       padding: 30px;
       border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
       text-align: center;
       width: 320px;
     }
@@ -299,49 +149,18 @@
       width: 100%;
       margin-top: 10px;
     }
-/* 🔹 Centralização estável da tela de login */
-#loginView {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background: linear-gradient(135deg, var(--azul), var(--azul-escuro));
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  overflow: hidden;
-  z-index: 1000;
-}
 
-/* Evita o scroll automático ao alternar login/sistema */
-html, body {
-  height: 100%;
-  overflow-y: auto; /* ativa rolagem vertical */
-  overflow-x: hidden; /* evita rolagem lateral */
-}
-#loginMsg {
-  background: #f8d7da;
-  border-radius: 5px;
-  padding: 8px;
-  font-weight: bold;
-}
-#loginMsg[style*="green"] {
-  background: #d4edda;
-}
-
-    /* ========================= SEÇÕES ========================= */
-    section {
+    #loginMsg {
+      margin-top: 10px;
+      font-weight: bold;
+      text-align: center;
       display: none;
     }
 
-    section h2 {
-      color: var(--azul-escuro);
-      border-left: 5px solid var(--azul);
-      padding-left: 10px;
-    }
+    /* ======= SEÇÕES ======= */
+    section { display: none; }
 
-    .section.active {
+    section.active {
       display: block;
       animation: fadeIn 0.3s ease;
     }
@@ -350,96 +169,54 @@ html, body {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
-	/* ========================= ROLAGEM POR SEÇÃO ========================= */
-.section {
-  max-height: calc(100vh - 140px); /* altura visível abaixo do cabeçalho */
-  overflow-y: auto; /* ativa rolagem vertical */
-  overflow-x: hidden; /* evita rolagem lateral */
-  padding-bottom: 20px; /* espaçamento inferior */
-  scroll-behavior: smooth; /* rolagem suave */
-}
-/* ========================= DASHBOARD ========================= */
-.dash-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
-  margin-top: 20px;
-}
 
-.dash-card {
-  background: var(--branco);
-  border-radius: 10px;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-  padding: 15px 20px;
-  transition: transform 0.2s ease;
-}
+    .section {
+      max-height: calc(100vh - 140px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-bottom: 20px;
+      scroll-behavior: smooth;
+    }
 
-.dash-card:hover {
-  transform: scale(1.02);
-}
+    /* ======= DASHBOARD / BOAS-VINDAS ======= */
+    .welcome {
+      text-align: center;
+      padding: 50px 20px;
+    }
 
-.dash-card h3 {
-  color: var(--azul-escuro);
-  margin-bottom: 10px;
-  border-bottom: 2px solid var(--azul);
-  padding-bottom: 5px;
-  font-size: 16px;
-}
+    .welcome h2 {
+      color: var(--azul-escuro);
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+    }
 
-.dash-card ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.dash-card ul li {
-  padding: 5px 0;
-  border-bottom: 1px solid #eee;
-  font-size: 14px;
-}
-
-.dash-card ul li:last-child {
-  border-bottom: none;
-}
-
-
-    /* ========================= RODAPÉ (opcional futuro) ========================= */
+    .welcome p {
+      color: #444;
+      font-size: 1rem;
+    }
   </style>
 </head>
-<body>
 
-  <!-- IMAGEM AMPLIADA (modal) -->
-  <div id="imagemAmpliada" onclick="this.style.display='none'">
-    <img src="" alt="Imagem ampliada">
-  </div>
-
-  <!-- TELA DE LOGIN -->
+  
+  <!-- ======= TELA DE LOGIN ======= -->
   <div id="loginView" class="login-container">
     <div class="login-card">
       <h2><i class="fa fa-boxes-stacked"></i> Sistema de Controle de Estoque</h2>
       <input id="usuarioLogin" type="text" placeholder="Usuário" />
       <input id="senhaLogin" type="password" placeholder="Senha" />
       <button onclick="fazerLogin()"><i class="fa fa-right-to-bracket"></i> Entrar</button>
-	  <p id="loginMsg" style="display:none; color:red; font-weight:bold; text-align:center;"></p>
-      
-      </div>
+      <p id="loginMsg"></p>
     </div>
   </div>
+   
 
-  <!-- APLICATIVO PRINCIPAL (escondido até login) -->
+   
+
+     <!-- ======= SISTEMA PRINCIPAL ======= -->
   <div id="mainApp" style="display:none;">
-
-    <!-- CABEÇALHO -->
     <header>
-      <div style="display:flex;align-items:center;gap:12px;">
-        <button id="menuToggle" onclick="toggleSidebar()"><i class="fa fa-bars"></i></button>
-        <h1><i class="fa fa-boxes-stacked"></i> Sistema de Controle de Estoque – Oral Unic Campo Grande</h1>
-      </div>
-      <div style="display:flex;align-items:center;gap:12px;">
-        <div id="userName" style="font-weight:700">Visitante</div>
-        <div id="perfilBadge" style="background:rgba(255,255,255,0.12);padding:6px 10px;border-radius:8px;font-size:13px;">PERFIL</div>
-        <button onclick="logout()" title="Sair"><i class="fa fa-sign-out-alt"></i></button>
-      </div>
+      <h1><i class="fa fa-box"></i> Sistema de Controle de Estoque</h1>
+      <button id="logoutBtn" onclick="fazerLogout()" title="Sair"><i class="fa fa-right-from-bracket"></i></button>
     </header>
 
     <!-- SIDEBAR -->
@@ -456,14 +233,33 @@ html, body {
 
     </aside>
 
-    <!-- CONTEÚDO PRINCIPAL -->
     <main>
-<!-- SEÇÃO: BOAS-VINDAS -->
-<section id="boasVindas" class="section active" style="text-align:center; padding:100px 20px;">
-  <h1 style="color:#003b88;">👋 Bem-vindo(a) <span id="nomeUsuarioBemVindo"></span>!</h1>
-  <h2 style="color:#0d6efd;">ao Sistema de Controle de Estoque – Oral Unic Campo Grande</h2>
-  <p style="margin-top:20px; color:#555;">Use o menu lateral para iniciar suas atividades.</p>
-</section>
+      <!-- Seção de Boas-vindas -->
+      <section id="dashboard" class="section active">
+        <div class="welcome">
+          <h2 id="bemVindoUsuario">Bem-vindo(a)!</h2>
+          <p>ao Sistema de Controle de Estoque – Oral Unic Campo Grande</p>
+          <p>Use o menu lateral para iniciar suas atividades.</p>
+        </div>
+      </section>
+
+      <!-- Outras seções do sistema -->
+      <section id="cadastro" class="section">
+        <h2>Cadastro de Produtos</h2>
+        <!-- conteúdo do cadastro -->
+      </section>
+
+      <section id="entrada" class="section">
+        <h2>Entrada de Materiais</h2>
+        <!-- conteúdo -->
+      </section>
+
+      <section id="saida" class="section">
+        <h2>Saída de Materiais</h2>
+        <!-- conteúdo -->
+      </section>
+    </main>
+  </div>
 
       <!-- SEÇÃO: CADASTRO DE PRODUTOS -->
       <section id="cadastro" class="section">
@@ -1020,8 +816,7 @@ window.scrollTo(0, 0);
    🔹 Logout
 ========================= */
 
-function logout() {
-  // 🔹 Remove sessão salva
+function fazerLogout() {
   localStorage.removeItem("usuarioLogado");
 
   // 🔹 Esconde o app e volta para tela de login
@@ -1052,93 +847,108 @@ function logout() {
    🔐 LOGIN, VERIFICAÇÃO E LOGOUT
 ================================ */
 
-// Executa quando o DOM estiver pronto
-document.addEventListener("DOMContentLoaded", () => {
-  verificarSessao();
-});
+!-- ======= Firebase (compatível com GitHub Pages) ======= -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
 
-<!-- 🔹 Firebase compatível com GitHub Pages -->
+  <script>
+    // 1️⃣ Configuração do Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyCPA79g3ucoytsNGWoJXXbnrXva40HieAQ",
+      authDomain: "sistema-de-estoque-da603.firebaseapp.com",
+      databaseURL: "https://sistema-de-estoque-da603-default-rtdb.firebaseio.com",
+      projectId: "sistema-de-estoque-da603",
+      storageBucket: "sistema-de-estoque-da603.appspot.com",
+      messagingSenderId: "873551516123",
+      appId: "1:873551516123:web:f7ce215d844e6586e3d7fe",
+      measurementId: "G-8R7RY041J9"
+    };
 
+    // 2️⃣ Inicializa Firebase e Firestore
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
+    // 3️⃣ Verifica sessão salva
+    function verificarSessao() {
+      const sessao = JSON.parse(localStorage.getItem("usuarioLogado"));
+      if (sessao && sessao.logado) {
+        mostrarSistema(sessao);
+      }
+    }
+    document.addEventListener("DOMContentLoaded", verificarSessao);
 
- // 🔹 Configuração do seu projeto Firebase
-  const firebaseConfig = {
-    apiKey: "AIzaSyCPA79g3ucoytsNGWoJXXbnrXva40HieAQ",
-    authDomain: "sistema-de-estoque-da603.firebaseapp.com",
-    databaseURL: "https://sistema-de-estoque-da603-default-rtdb.firebaseio.com",
-    projectId: "sistema-de-estoque-da603",
-    storageBucket: "sistema-de-estoque-da603.appspot.com",
-    messagingSenderId: "873551516123",
-    appId: "1:873551516123:web:f7ce215d844e6586e3d7fe",
-    measurementId: "G-8R7RY041J9"
-  };
+    // 4️⃣ Login via Firestore
+    async function fazerLogin() {
+      const nome = document.getElementById("usuarioLogin")?.value.trim();
+      const senha = document.getElementById("senhaLogin")?.value.trim();
+      const msg = document.getElementById("loginMsg");
 
-  // 🔹 Inicializa o Firebase
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
+      msg.style.display = "none";
+      msg.textContent = "";
 
-  // === FUNÇÃO DE LOGIN ===
-  async function fazerLogin() {
-    const nome = document.getElementById("usuarioLogin")?.value.trim();
-    const senha = document.getElementById("senhaLogin")?.value.trim();
-    const msg = document.getElementById("loginMsg");
+      if (!nome || !senha) {
+        msg.textContent = "⚠️ Preencha usuário e senha.";
+        msg.style.display = "block";
+        msg.style.color = "red";
+        return;
+      }
 
-    msg.style.display = "none";
-    msg.textContent = "";
+      try {
+        const snap = await db.collection("usuarios")
+          .where("nome", "==", nome)
+          .where("senha", "==", senha)
+          .get();
 
-    if (!nome || !senha) {
-      msg.textContent = "⚠️ Preencha usuário e senha.";
-      msg.style.display = "block";
-      msg.style.color = "red";
-      return;
+        if (snap.empty) {
+          msg.textContent = "❌ Usuário ou senha incorretos!";
+          msg.style.display = "block";
+          msg.style.color = "red";
+          return;
+        }
+
+        const dados = snap.docs[0].data();
+        msg.textContent = "✅ Login realizado com sucesso!";
+        msg.style.display = "block";
+        msg.style.color = "green";
+
+        const sessao = { ...dados, logado: true, loginTime: Date.now() };
+        localStorage.setItem("usuarioLogado", JSON.stringify(sessao));
+
+        setTimeout(() => mostrarSistema(sessao), 600);
+      } catch (e) {
+        console.error("Erro no login:", e);
+        msg.textContent = "⚠️ Erro ao conectar com o servidor.";
+        msg.style.display = "block";
+        msg.style.color = "red";
+      }
     }
 
-    try {
-      const userCredential = await auth.signInWithEmailAndPassword(nome, senha);
-      const user = userCredential.user;
+    // 5️⃣ Login com tecla Enter
+    document.addEventListener("keydown", e => {
+      if (e.key === "Enter" && document.getElementById("loginView").style.display !== "none") {
+        e.preventDefault();
+        fazerLogin();
+      }
+    });
 
-      msg.textContent = "✅ Login realizado com sucesso!";
-      msg.style.display = "block";
-      msg.style.color = "green";
 
-      const sessao = { email: user.email, logado: true, loginTime: Date.now() };
-      localStorage.setItem("usuarioLogado", JSON.stringify(sessao));
 
-      setTimeout(() => mostrarSistema(sessao), 600);
-    } catch (error) {
-      console.error("Erro no login:", error.message);
-      msg.textContent = "❌ Usuário ou senha incorretos!";
-      msg.style.display = "block";
-      msg.style.color = "red";
+
+   function mostrarSecao(id) {
+      document.querySelectorAll("section").forEach(sec => sec.classList.remove("active"));
+      const alvo = document.getElementById(id);
+      if (alvo) alvo.classList.add("active");
     }
-  }
-
-  // === PERMITIR LOGIN COM ENTER ===
-  document.addEventListener("keydown", function (event) {
-    const loginView = document.getElementById("loginView");
-    if (loginView && loginView.style.display !== "none" && event.key === "Enter") {
-      event.preventDefault();
-      fazerLogin();
-    }
-  });
-
-  // 🔹 Torna a função global (acessível pelo botão)
-  window.fazerLogin = fazerLogin;
-</script>
-
-
-
-
 
 
 // === MOSTRA SISTEMA ===
-function mostrarSistema(sessao) {
-  const loginView = document.getElementById("loginView");
-  const mainApp = document.getElementById("mainApp");
-  const userName = document.getElementById("userName");
-  const perfilBadge = document.getElementById("perfilBadge");
-  const sidebar = document.getElementById("sidebar");
+
+  function mostrarSistema(sessao) {
+      document.getElementById("loginView").style.display = "none";
+      document.getElementById("mainApp").style.display = "block";
+      const nome = sessao?.nome || sessao?.email || "Usuário";
+      document.getElementById("bemVindoUsuario").textContent = `Bem-vindo(a) ${nome}!`;
+      mostrarSecao("dashboard");
 
   if (loginView && mainApp) {
     loginView.style.display = "none";
@@ -1164,7 +974,7 @@ function mostrarSistema(sessao) {
   }
 
   // 🔹 Atualiza variáveis e permissões
-  window.usuarioLogado = sessao;
+
 
   if (typeof aplicarPermissoes === "function") aplicarPermissoes();
   if (typeof bloquearAcoesSimples2 === "function") bloquearAcoesSimples2();
@@ -3214,15 +3024,14 @@ function sincronizarNomeProdutoAntigo(novoNome, nomeAntigo) {
   }
 }
 
-
+ window.fazerLogin = fazerLogin;
+    window.verificarSessao = verificarSessao;
+    window.fazerLogout = fazerLogout;
 
 
 </script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
 </body>
 </html>
 
@@ -3234,3 +3043,4 @@ function sincronizarNomeProdutoAntigo(novoNome, nomeAntigo) {
 
 </body>
 </html>
+
