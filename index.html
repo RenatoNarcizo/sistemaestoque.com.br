@@ -3041,6 +3041,37 @@ function atualizarSetoresPorProduto() {
     .join("");
 }
 
+// ==========================================================
+// 🧠 AUTO-COMPLETE NO CAMPO "Saída de Materiais"
+// ==========================================================
+function configurarAutoCompleteSaida() {
+  const saidaInput = document.getElementById("saidaProduto");
+  if (!saidaInput) return;
+
+  // Cria ou obtém datalist para sugestões
+  let dataList = document.getElementById("listaProdutosSaida");
+  if (!dataList) {
+    dataList = document.createElement("datalist");
+    dataList.id = "listaProdutosSaida";
+    document.body.appendChild(dataList);
+    saidaInput.setAttribute("list", "listaProdutosSaida");
+  }
+
+  // Preenche o datalist com os produtos existentes
+  atualizarListaSugestoesSaida();
+}
+
+// 🔄 Atualiza sugestões conforme os produtos no estoque
+function atualizarListaSugestoesSaida() {
+  const dataList = document.getElementById("listaProdutosSaida");
+  if (!dataList) return;
+
+  const nomesProdutos = [...new Set((window.produtos || []).map(p => p.nome).filter(Boolean))];
+  dataList.innerHTML = nomesProdutos.map(nome => `<option value="${nome}"></option>`).join("");
+}
+
+// 🧩 Inicializa quando carregar os dados
+document.addEventListener("DOMContentLoaded", configurarAutoCompleteSaida);
 
 // ====================================================
 // 📦 ESTOQUE ATUAL (corrigido e aprimorado)
@@ -4103,10 +4134,12 @@ document.addEventListener('click', (event) => {
     }
 });
 
+
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"></script>
+
 
