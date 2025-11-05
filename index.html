@@ -3042,11 +3042,17 @@ function atualizarSetoresPorProduto() {
 }
 
 // ==========================================================
-// 🧠 AUTO-COMPLETE NO CAMPO "Saída de Materiais"
+// 🧠 AUTO-COMPLETE NO CAMPO "Saída de Materiais" (corrigido)
 // ==========================================================
 function configurarAutoCompleteSaida() {
+  // tenta obter o campo
   const saidaInput = document.getElementById("saidaProduto");
-  if (!saidaInput) return;
+
+  // Se ainda não existir (ex: login não carregou interface), tenta de novo depois
+  if (!saidaInput) {
+    setTimeout(configurarAutoCompleteSaida, 1000);
+    return;
+  }
 
   // Cria ou obtém datalist para sugestões
   let dataList = document.getElementById("listaProdutosSaida");
@@ -3057,8 +3063,12 @@ function configurarAutoCompleteSaida() {
     saidaInput.setAttribute("list", "listaProdutosSaida");
   }
 
-  // Preenche o datalist com os produtos existentes
+  // Preenche o datalist inicialmente
   atualizarListaSugestoesSaida();
+
+  // Atualiza sugestões sempre que o usuário focar o campo
+  saidaInput.addEventListener("focus", atualizarListaSugestoesSaida);
+  saidaInput.addEventListener("input", atualizarListaSugestoesSaida);
 }
 
 // 🔄 Atualiza sugestões conforme os produtos no estoque
@@ -3066,12 +3076,22 @@ function atualizarListaSugestoesSaida() {
   const dataList = document.getElementById("listaProdutosSaida");
   if (!dataList) return;
 
-  const nomesProdutos = [...new Set((window.produtos || []).map(p => p.nome).filter(Boolean))];
-  dataList.innerHTML = nomesProdutos.map(nome => `<option value="${nome}"></option>`).join("");
+  // Garante que window.produtos está disponível
+  if (!Array.isArray(window.produtos)) window.produtos = [];
+
+  const nomesProdutos = [...new Set(window.produtos.map(p => p.nome).filter(Boolean))];
+
+  if (nomesProdutos.length === 0) {
+    dataList.innerHTML = "<option value='Nenhum produto encontrado'></option>";
+  } else {
+    dataList.innerHTML = nomesProdutos.map(nome => `<option value="${nome}"></option>`).join("");
+  }
 }
 
-// 🧩 Inicializa quando carregar os dados
-document.addEventListener("DOMContentLoaded", configurarAutoCompleteSaida);
+// ⚙️ Inicializa após o carregamento da página
+document.addEventListener("DOMContentLoaded", () => {
+  setTimeout(configurarAutoCompleteSaida, 1500); // dá tempo da tela carregar
+});
 
 // ====================================================
 // 📦 ESTOQUE ATUAL (corrigido e aprimorado)
@@ -4141,5 +4161,6 @@ document.addEventListener('click', (event) => {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"></script>
+
 
 
