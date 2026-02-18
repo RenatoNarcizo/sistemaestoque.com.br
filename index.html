@@ -6526,12 +6526,12 @@
       cotacoes.push(novaCotacao);
       localStorage.setItem("cotacoes", JSON.stringify(cotacoes));
 
-      // 🔥 SINCRONIZA COM FIRESTORE (COM PROTEÇÃO DE COTA)
+      // 🔥 SINCRONIZA COM REALTIME DATABASE
       try {
-        await db.collection("cotacoes").doc(String(novaCotacao.numero)).set(novaCotacao);
-        console.log("✅ Cotação salva no Firestore");
-      } catch (errQuota) {
-        console.warn("⚠️ Cota do Firestore excedida HOJE. Salvo localmente. Amanhã sincroniza.", errQuota);
+        await rtdb.ref("cotacoes/" + novaCotacao.numero).set(novaCotacao);
+        console.log("✅ Cotação salva no Realtime Database");
+      } catch (errRtdb) {
+        console.warn("⚠️ Erro ao salvar no RTDB. Salvo localmente.", errRtdb);
       }
 
       // 🔔 NOTIFICAÇÃO: NOVA FUNÇÃO (WEBHOOK)
@@ -6552,15 +6552,17 @@
       window.fornecedoresSelecionadosTemp = [];
       numeroCotacaoAtual = null;
 
-      alert("✅ Cotação publicada com sucesso! A página será recarregada.");
+      alert("✅ Cotação publicada com sucesso!");
 
-      // 🔄 RECARREGA PARA GARANTIR VISUALIZAÇÃO CORRETA E LIMPEZA
-      window.location.reload();
-
-      // Código antigo removido pois o reload resolve tudo
-      // voltarMenu();
-      // limparFormulariosCotacao();
-      // setTimeout...
+      // Volta ao painel sem recarregar (evita logout)
+      limparFormulariosCotacao();
+      if (typeof voltarMenu === "function") {
+        voltarMenu();
+      } else {
+        document.querySelectorAll('.secao').forEach(s => s.style.display = 'none');
+        const painel = document.getElementById('painel') || document.getElementById('dashboard') || document.getElementById('menu-principal');
+        if (painel) painel.style.display = 'block';
+      }
 
     } catch (e) {
       console.error("Erro ao salvar:", e);
@@ -11780,7 +11782,18 @@
       numeroCotacaoAtual = null;
 
       limparFormulariosCotacao();
-      window.location.reload();
+
+      // Volta ao painel sem recarregar (evita logout)
+      if (typeof mostrarPainel === "function") {
+        mostrarPainel();
+      } else if (typeof voltarMenu === "function") {
+        voltarMenu();
+      } else {
+        // Fallback: vai para a seção de cotações
+        document.querySelectorAll('.secao').forEach(s => s.style.display = 'none');
+        const painel = document.getElementById('painel') || document.getElementById('dashboard') || document.getElementById('menu-principal');
+        if (painel) painel.style.display = 'block';
+      }
 
     } catch (e) {
       console.error("Erro FATAL V2:", e);
