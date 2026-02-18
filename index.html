@@ -6552,17 +6552,14 @@
       window.fornecedoresSelecionadosTemp = [];
       numeroCotacaoAtual = null;
 
-      alert("✅ Cotação publicada com sucesso!");
-
       // Volta ao painel sem recarregar (evita logout)
       limparFormulariosCotacao();
-      if (typeof voltarMenu === "function") {
-        voltarMenu();
-      } else {
-        document.querySelectorAll('.secao').forEach(s => s.style.display = 'none');
-        const painel = document.getElementById('painel') || document.getElementById('dashboard') || document.getElementById('menu-principal');
-        if (painel) painel.style.display = 'block';
-      }
+      const loginContainer = document.getElementById("login-container");
+      const dashboardEl = document.getElementById("dashboard");
+      if (loginContainer) loginContainer.style.display = "none";
+      if (dashboardEl) dashboardEl.style.display = "block";
+      document.querySelectorAll("section.secao").forEach(s => s.style.display = "none");
+      if (dashboardEl) dashboardEl.style.display = "block";
 
     } catch (e) {
       console.error("Erro ao salvar:", e);
@@ -11784,16 +11781,17 @@
       limparFormulariosCotacao();
 
       // Volta ao painel sem recarregar (evita logout)
-      if (typeof mostrarPainel === "function") {
-        mostrarPainel();
-      } else if (typeof voltarMenu === "function") {
-        voltarMenu();
-      } else {
-        // Fallback: vai para a seção de cotações
-        document.querySelectorAll('.secao').forEach(s => s.style.display = 'none');
-        const painel = document.getElementById('painel') || document.getElementById('dashboard') || document.getElementById('menu-principal');
-        if (painel) painel.style.display = 'block';
-      }
+      const loginContainer = document.getElementById("login-container");
+      const dashboardEl = document.getElementById("dashboard");
+      if (loginContainer) loginContainer.style.display = "none";
+      if (dashboardEl) dashboardEl.style.display = "block";
+      // Esconde seções de criação de cotação
+      ["nova-cotacao", "novaCotacao", "secao-cotacao", "criar-cotacao"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = "none";
+      });
+      document.querySelectorAll("section.secao").forEach(s => s.style.display = "none");
+      if (dashboardEl) dashboardEl.style.display = "block";
 
     } catch (e) {
       console.error("Erro FATAL V2:", e);
