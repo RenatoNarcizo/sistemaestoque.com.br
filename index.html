@@ -6948,8 +6948,20 @@
     });
 
     // 🧹 LIMPEZA DE ARQUIVO (EFICAZ PARA NOVO UPLOAD)
+    // 🧹 LIMPEZA DE ARQUIVO ULTRA-FORÇADA (CLONE NODE)
+    // Isso remove referências internas do navegador que o .value="" às vezes falha em limpar
     const inputAnexo = document.getElementById("respAnexo");
-    if (inputAnexo) inputAnexo.value = "";
+    if (inputAnexo) {
+      try {
+        const novoInput = inputAnexo.cloneNode(true);
+        novoInput.value = "";
+        inputAnexo.parentNode.replaceChild(novoInput, inputAnexo);
+        console.log("🧹 Input de anexo recriado e limpo.");
+      } catch (e) {
+        console.warn("Falha ao clonar input, tentando limpeza padrão", e);
+        inputAnexo.value = "";
+      }
+    }
 
     const email = usuario.email.toLowerCase().trim();
     const chave = `resposta_${numero}_${email}`;
